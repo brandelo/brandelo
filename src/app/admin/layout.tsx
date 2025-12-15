@@ -24,9 +24,9 @@ const navItems = [
   { label: "Leads", href: "/admin/leads", icon: Users },
   { label: "Clients", href: "/admin/clients", icon: Users },
   { label: "Forms", href: "/admin/forms", icon: Activity },
-  { label: "Blogs", href: "/admin/blogs", icon: FileText },
+  // { label: "Blogs", href: "/admin/blogs", icon: FileText },
   { label: "Users", href: "/admin/users", icon: Users },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
+  // { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 type Profile = {
@@ -135,10 +135,10 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* FIXED SIDEBAR (desktop) */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200 bg-white/95 bg-[radial-gradient(circle_at_top,_rgba(129,140,248,0.12),_transparent_55%),radial-gradient(circle_at_bottom,_rgba(52,211,153,0.12),_transparent_55%)] shadow-sm backdrop-blur md:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200 bg-white/95 bg-[radial-gradient(circle_at_top,rgba(129,140,248,0.12),transparent_55%),radial-gradient(circle_at_bottom,rgba(52,211,153,0.12),transparent_55%)] shadow-sm backdrop-blur md:flex">
         {/* Brand bar */}
         <div className="flex h-16 items-center gap-3 border-b border-slate-200/80 px-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-sky-500 to-emerald-400 text-white shadow-md shadow-indigo-300/50">
+          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-linear-to-br from-indigo-500 via-sky-500 to-emerald-400 text-white shadow-md shadow-indigo-300/50">
             <Sparkles className="h-5 w-5" />
           </div>
           <div className="flex flex-col">

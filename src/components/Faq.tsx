@@ -15,29 +15,29 @@ type Props = {
 };
 
 export default function FAQSectionWDB({
-  title = "Frequently Asked Questions",
-  watermark = "FAQs",
+  title = "Frequently Asked Questions about Brandelo",
+  watermark = "Brandelo FAQs",
   illustrationSrc = "/images/faq/faq.png",
   faqs = [
     {
-      q: "What is Web Digital Bazaar?",
-      a: "We’re a full-stack digital growth studio offering SEO, SMM, Ads, and dev.",
+      q: "What is Brandelo and what do you specialize in?",
+      a: "Brandelo is a performance-focused digital marketing and creative growth studio. We specialize in SEO, Google & Meta Ads, social media marketing, branding, and modern web development. We help businesses grow revenue, traffic, and conversions with data-driven strategies instead of generic services.",
     },
     {
-      q: "How soon can we start?",
-      a: "Usually within a week after scoping and onboarding.",
+      q: "How does your onboarding process work and how soon can we start?",
+      a: "We begin with a short discovery call to understand your goals, audience, and current marketing structure. After that we share a strategic roadmap and kickoff plan. Most new clients can start within 5–7 business days including access and onboarding.",
     },
     {
-      q: "Do you have monthly plans?",
-      a: "Yes—tiered retainers for different growth stages.",
+      q: "What services does Brandelo offer?",
+      a: "Brandelo offers complete growth services: SEO, PPC ads, social media marketing, branding, funnel design, content strategy, landing pages, CRO, and website development using Next.js and WordPress. You can work with us for one service or as your long-term growth partner.",
     },
     {
-      q: "Can you work with my in-house team?",
-      a: "Absolutely. We integrate with your tools and workflows.",
+      q: "Can you work alongside my in-house marketing or tech team?",
+      a: "Yes. Brandelo works as your extended growth and creative partner. We collaborate with in-house teams on strategy, execution, and reporting using your tools, processes, and workflows. Think of us as an embedded senior team, not a typical agency.",
     },
     {
-      q: "What results can I expect?",
-      a: "Clear KPIs, transparent reporting, and compounding growth.",
+      q: "What results can I expect and how do you measure performance?",
+      a: "We align KPIs from day one—traffic, CAC, ROAS, conversions, and revenue. We set up proper tracking, dashboards, and weekly/monthly reporting. Expect transparent communication, clear insights, and strategies that actually move business results.",
     },
   ],
   onAsk,
@@ -55,7 +55,10 @@ export default function FAQSectionWDB({
   };
 
   return (
-    <section className="relative isolation-isolate overflow-hidden dark bg-[#0b1020] text-white py-24">
+    <section
+      className="relative isolation-isolate overflow-hidden dark bg-[#0b1020] text-white py-24"
+      aria-label="Frequently asked questions about Brandelo digital marketing and branding services"
+    >
       {/* Background */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_10%,rgba(99,102,241,0.25),transparent_50%),radial-gradient(70%_50%_at_80%_20%,rgba(34,197,94,0.20),transparent_50%),#0b1020]" />
@@ -111,7 +114,7 @@ export default function FAQSectionWDB({
             <div className="absolute inset-0 rounded-[2rem] bg-[conic-gradient(from_0deg,rgba(16,185,129,.25),rgba(59,130,246,.25),rgba(168,85,247,.25),rgba(16,185,129,.25))] opacity-40" />
             <Image
               src={illustrationSrc}
-              alt="FAQ illustration"
+              alt="Brandelo FAQs about digital marketing, branding, SEO, and advertising"
               width={320}
               height={260}
               className="relative z-10 h-auto w-full rounded-[1.8rem] object-contain"
@@ -124,16 +127,18 @@ export default function FAQSectionWDB({
       {/* ⭐ FULL WIDTH ASK BOX (outside grid) ⭐ */}
       <div className="mx-auto mt-16 w-full max-w-4xl px-6">
         <div className="w-full rounded-2xl border border-white/15 bg-white/10 p-6 text-center shadow-2xl backdrop-blur-xl">
-          <h3 className="text-lg font-semibold">Still have a question?</h3>
+          <h3 className="text-lg font-semibold">
+            Still have a question about working with Brandelo?
+          </h3>
           <p className="mt-1 text-sm text-white/70">
-            Ask anything — we’ll reply soon!
+            Ask us anything — we’ll reply soon!
           </p>
 
           <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
             <input
               value={askText}
               onChange={(e) => setAskText(e.target.value)}
-              placeholder="Type your question..."
+              placeholder="Type your question about Brandelo..."
               className="w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/50 outline-none focus:border-emerald-300/60 focus:ring-2 focus:ring-emerald-200/30"
             />
 
@@ -143,7 +148,7 @@ export default function FAQSectionWDB({
               whileHover={{ scale: 1.03 }}
               className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 px-6 py-2 text-sm font-semibold text-black shadow-[0_8px_30px_rgba(56,189,248,.3)] hover:opacity-90"
             >
-              Send
+              Send Question
             </motion.button>
           </form>
         </div>
@@ -177,6 +182,7 @@ function FAQItem({
       <button
         onClick={onToggle}
         className="flex w-full items-center gap-4 px-5 py-4 text-left"
+        aria-expanded={open}
       >
         <div className="grid h-10 w-14 place-items-center rounded-xl border border-white/20 bg-white/10 text-sm font-bold text-white/70">
           {String(index + 1).padStart(2, "0")}

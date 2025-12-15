@@ -107,15 +107,15 @@ export default async function DashboardPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" className="rounded-full">
+          {/* <Button variant="outline" size="sm" className="rounded-full">
             Download report
-          </Button>
-          <Button
+          </Button> */}
+          {/* <Button
             size="sm"
             className="rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-400 text-xs font-semibold text-slate-950 shadow-md shadow-indigo-500/40 hover:opacity-90"
           >
             + New item
-          </Button>
+          </Button> */}
         </div>
       </div>
 

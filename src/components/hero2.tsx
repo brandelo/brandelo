@@ -62,11 +62,11 @@ function useParallaxTilt(intensity = 14) {
  */
 export default function Hero3DGlassy({
   kicker = "Brandelo • Digital Marketing",
-  title = "Amplify Growth with Data-Driven Marketing",
-  subtitle = "3D experiences, glassy UI, and high-impact campaigns that convert. We blend SEO, Paid Ads, and Content to scale your brand.",
+  title = "Qualifying Your Brand with Digital Growth",
+  subtitle = "Within Brandelo, we help businesses grow through smart digital marketing, creative design, and modern website development. Our team builds strategies that bring results, whether you’re looking to increase visibility, boost engagement, or build a strong online presence.",
   primary = { label: "Get Free Audit", href: "/contact" },
   secondary = { label: "See Pricing", href: "/pricing" },
-  bullets = ["SEO Sprints", "Performance Ads", "Content Engine"],
+  bullets = ["Digital Marketing Services", "Graphics Design & Branding", "Website Design & Development"],
 }: HeroProps) {
   const prefersReduced = useReducedMotion();
   const { ref, rx, ry, onMouseMove, onLeave } = useParallaxTilt(14);
