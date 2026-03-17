@@ -15,6 +15,7 @@ import {
   CircleDot,
   LogOut,
   FileText,
+  Bell,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,8 @@ import { Button } from "@/components/ui/button";
 const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Leads", href: "/admin/leads", icon: Users },
+  { label: "Follow Up", href: "/admin/follow-up", icon: Bell },
+  { label: "Proposals", href: "/admin/proposals", icon: FileText },
   { label: "Clients", href: "/admin/clients", icon: Users },
   { label: "Forms", href: "/admin/forms", icon: Activity },
   // { label: "Blogs", href: "/admin/blogs", icon: FileText },

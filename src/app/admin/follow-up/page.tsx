@@ -38,14 +38,20 @@ import {
 import { createClient } from "@/lib/supabase/client";
 
 // ---------------- Types ----------------
-type LeadPriority = "Hot" | "Warm" | "Cold";
+type FollowUpPriority = "Hot" | "Warm" | "Cold";
+
+type Need = {
+  id: string;
+  description: string;
+  status: string;
+};
 
 // 👇 MATCHES your digital-marketing clients table
 type ServiceType = "Web Development" | "SEO" | "SMM" | "Ads";
 type FollowUpType = "Daily" | "Weekly" | "15 days" | "30 days" | "On Demand";
 
-// This type reflects your DB schema (leads table)
-type LeadRow = {
+// This type reflects your DB schema (followUps table)
+type FollowUpRow = {
   id: string;
   name: string;
   email: string | null;
@@ -67,13 +73,13 @@ type LeadRow = {
   updated_by_name?: string | null;
 };
 
-type Lead = {
+type FollowUp = {
   id: string;
   name: string;
   email: string; // UI uses "-" when null
   phone: string;
   source: string;
-  priority: LeadPriority;
+  priority: FollowUpPriority;
   lastContacted: string; // dd/mm/yyyy (display)
   project: string;
   notes: string;
@@ -105,19 +111,19 @@ function todayISODate() {
   return `${y}-${m}-${day}`;
 }
 
-const priorityMapDbToUi: Record<LeadRow["priority"], LeadPriority> = {
+const priorityMapDbToUi: Record<FollowUpRow["priority"], FollowUpPriority> = {
   hot: "Hot",
   warm: "Warm",
   cold: "Cold",
 };
 
-const priorityMapUiToDb: Record<LeadPriority, LeadRow["priority"]> = {
+const priorityMapUiToDb: Record<FollowUpPriority, FollowUpRow["priority"]> = {
   Hot: "hot",
   Warm: "warm",
   Cold: "cold",
 };
 
-function fromLeadRow(r: LeadRow): Lead {
+function fromFollowUpRow(r: FollowUpRow): FollowUp {
   return {
     id: r.id,
     name: r.name,
@@ -136,9 +142,9 @@ function fromLeadRow(r: LeadRow): Lead {
 }
 
 // ---------------- Priority Badge ----------------
-function PriorityBadge({ priority }: { priority: LeadPriority }) {
+function PriorityBadge({ priority }: { priority: FollowUpPriority }) {
   const styleMap: Record<
-    LeadPriority,
+    FollowUpPriority,
     { bg: string; text: string; ring: string }
   > = {
     Hot: {
@@ -160,7 +166,7 @@ function PriorityBadge({ priority }: { priority: LeadPriority }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium leading-none ring-1",
+        "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium followUping-none ring-1",
         styleMap[priority].bg,
         styleMap[priority].text,
         styleMap[priority].ring
@@ -199,11 +205,11 @@ function SidePanel({
         {/* HEADER */}
         <div className="border-b border-border/60 bg-muted/40 px-4 py-3">
           <DialogHeader className="p-0">
-            <DialogTitle className="text-base font-semibold leading-none tracking-[-0.03em]">
+            <DialogTitle className="text-base font-semibold followUping-none tracking-[-0.03em]">
               {title}
             </DialogTitle>
             {description ? (
-              <DialogDescription className="text-[12px] leading-snug">
+              <DialogDescription className="text-[12px] followUping-snug">
                 {description}
               </DialogDescription>
             ) : null}
@@ -228,24 +234,24 @@ function SidePanel({
 
 
 // ---------------- Page ----------------
-export default function LeadsPage() {
+export default function FollowUpsPage() {
   const supabase = React.useMemo(() => createClient(), []);
 
   // data
-  const [leads, setLeads] = React.useState<Lead[]>([]);
+  const [followUps, setFollowUps] = React.useState<FollowUp[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
   // trashed
   const [openTrash, setOpenTrash] = React.useState(false);
-  const [trashedLeads, setTrashedLeads] = React.useState<Lead[]>([]);
+  const [trashedFollowUps, setTrashedFollowUps] = React.useState<FollowUp[]>([]);
   const [trashLoading, setTrashLoading] = React.useState(false);
 
   // filters
 
   const [search, setSearch] = React.useState("");
   const [priorityFilter, setPriorityFilter] =
-    React.useState<"all" | LeadPriority>("all");
+    React.useState<"all" | FollowUpPriority>("all");
 
   // add/edit drawer
   const [openAddEdit, setOpenAddEdit] = React.useState(false);
@@ -257,58 +263,63 @@ export default function LeadsPage() {
   const [formEmail, setFormEmail] = React.useState("");
   const [formSource, setFormSource] = React.useState("facebook ads");
   const [formPriority, setFormPriority] =
-    React.useState<LeadPriority>("Warm");
+    React.useState<FollowUpPriority>("Warm");
 
   // new form fields
   const [formProject, setFormProject] = React.useState("");
   const [formNotes, setFormNotes] = React.useState("");
 
+  // Needs table state
+  const [needs, setNeeds] = React.useState<Need[]>([]);
+  const [newNeedText, setNewNeedText] = React.useState("");
+  const [needsLoading, setNeedsLoading] = React.useState(false);
+
   // CSV input ref
   const csvInputRef = React.useRef<HTMLInputElement | null>(null);
 
   // ---- fetch
-  async function fetchLeads() {
+  async function fetchFollowUps() {
     setLoading(true);
     setErrorMsg(null);
 
     const { data, error } = await supabase
-      .from("leads")
+      .from("follow_ups")
       .select("*")
       .is("deleted_at", null) // soft delete
       .order("created_at", { ascending: false });
 
     if (error) {
       setErrorMsg(error.message);
-      setLeads([]);
+      setFollowUps([]);
       setLoading(false);
       return;
     }
 
-    const normalized: Lead[] = (data as LeadRow[]).map(fromLeadRow);
-    setLeads(normalized);
+    const normalized: FollowUp[] = (data as FollowUpRow[]).map(fromFollowUpRow);
+    setFollowUps(normalized);
     setLoading(false);
   }
 
   async function fetchTrashed() {
     setTrashLoading(true);
     const { data, error } = await supabase
-      .from("leads")
+      .from("follow_ups")
       .select("*")
       .not("deleted_at", "is", null)
       .order("deleted_at", { ascending: false });
 
     if (error) {
-      setTrashedLeads([]);
+      setTrashedFollowUps([]);
       setTrashLoading(false);
       return;
     }
 
-    setTrashedLeads(((data as LeadRow[]) ?? []).map(fromLeadRow));
+    setTrashedFollowUps(((data as FollowUpRow[]) ?? []).map(fromFollowUpRow));
     setTrashLoading(false);
   }
 
   React.useEffect(() => {
-    void fetchLeads();
+    void fetchFollowUps();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -318,22 +329,22 @@ export default function LeadsPage() {
     setPriorityFilter("all");
   }
 
-  // Convert → Follow Up
-  async function convertToFollowUp(lead: Lead) {
+  // Convert → Proposal
+  async function convertToProposal(followUp: FollowUp) {
     try {
-      const email = lead.email === "-" ? null : lead.email?.trim() || null;
+      const email = followUp.email === "-" ? null : followUp.email?.trim() || null;
 
       const { data: created, error: insertErr } = await supabase
-        .from("follow_ups")
+        .from("proposals")
         .insert({
-          name: lead.name,
+          name: followUp.name,
           email,
-          phone: lead.phone,
-          source: lead.source || null,
-          priority: priorityMapUiToDb[lead.priority],
-          project: lead.project || null,
-          notes: lead.notes || null,
-          last_contacted: todayISODate(),
+          phone: followUp.phone,
+          source: followUp.source || null,
+          service: "Web Development",
+          status: "pending",
+          project: followUp.project || null,
+          notes: followUp.notes || null,
         })
         .select("id")
         .single<{ id: string }>();
@@ -344,20 +355,20 @@ export default function LeadsPage() {
       }
 
       const { error: archiveErr } = await supabase
-        .from("leads")
+        .from("follow_ups")
         .update({ deleted_at: new Date().toISOString() })
-        .eq("id", lead.id);
+        .eq("id", followUp.id);
 
       if (archiveErr) {
         window.alert(
-          "Follow Up created, but failed to move lead to Trash: " +
+          "Proposal created, but failed to move follow up to Trash: " +
           archiveErr.message
         );
       }
 
-      setLeads((prev) => prev.filter((l) => l.id !== lead.id));
+      setFollowUps((prev) => prev.filter((l) => l.id !== followUp.id));
       window.alert(
-        "Converted to Follow Up ✅" + (created?.id ? ` (id: ${created.id})` : "")
+        "Converted to Proposal ✅" + (created?.id ? ` (id: ${created.id})` : "")
       );
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -365,15 +376,28 @@ export default function LeadsPage() {
     }
   }
 
-  function openEditDrawer(lead: Lead) {
-    setEditingId(lead.id);
-    setFormName(lead.name);
-    setFormPhone(lead.phone);
-    setFormEmail(lead.email === "-" ? "" : lead.email);
-    setFormSource(lead.source || "facebook ads");
-    setFormPriority(lead.priority);
-    setFormProject(lead.project || "");
-    setFormNotes(lead.notes || "");
+  function openEditDrawer(followUp: FollowUp) {
+    setEditingId(followUp.id);
+    setFormName(followUp.name);
+    setFormPhone(followUp.phone);
+    setFormEmail(followUp.email === "-" ? "" : followUp.email);
+    setFormSource(followUp.source || "facebook ads");
+    setFormPriority(followUp.priority);
+    setFormProject(followUp.project || "");
+    setFormNotes(followUp.notes || "");
+
+    setNeeds([]);
+    setNeedsLoading(true);
+    supabase
+      .from("needs")
+      .select("*")
+      .eq("follow_up_id", followUp.id)
+      .order("created_at", { ascending: true })
+      .then(({ data }) => {
+        setNeeds(data || []);
+        setNeedsLoading(false);
+      });
+
     setOpenAddEdit(true);
   }
 
@@ -386,45 +410,46 @@ export default function LeadsPage() {
     setFormPriority("Warm");
     setFormProject("");
     setFormNotes("");
+    setNeeds([]);
     setOpenAddEdit(true);
   }
 
   async function moveToTrash(id: string) {
     const { error } = await supabase
-      .from("leads")
+      .from("follow_ups")
       .update({ deleted_at: new Date().toISOString() })
       .eq("id", id);
     if (error) {
       window.alert("Failed moving to trash: " + error.message);
       return;
     }
-    setLeads((prev) => prev.filter((l) => l.id !== id));
+    setFollowUps((prev) => prev.filter((l) => l.id !== id));
   }
 
   async function restoreFromTrash(id: string) {
     const { error } = await supabase
-      .from("leads")
+      .from("follow_ups")
       .update({ deleted_at: null })
       .eq("id", id);
     if (error) {
       window.alert("Failed to restore: " + error.message);
       return;
     }
-    setTrashedLeads((prev) => prev.filter((l) => l.id !== id));
-    await fetchLeads();
+    setTrashedFollowUps((prev) => prev.filter((l) => l.id !== id));
+    await fetchFollowUps();
   }
 
   async function deletePermanently(id: string) {
     if (!window.confirm("Delete permanently? This cannot be undone.")) return;
-    const { error } = await supabase.from("leads").delete().eq("id", id);
+    const { error } = await supabase.from("follow_ups").delete().eq("id", id);
     if (error) {
       window.alert("Failed to delete permanently: " + error.message);
       return;
     }
-    setTrashedLeads((prev) => prev.filter((l) => l.id !== id));
+    setTrashedFollowUps((prev) => prev.filter((l) => l.id !== id));
   }
 
-  async function handleSaveLead() {
+  async function handleSaveFollowUp() {
     if (!formName.trim() || !formPhone.trim()) {
       window.alert("Name and phone are required");
       return;
@@ -443,35 +468,53 @@ export default function LeadsPage() {
 
     if (!editingId) {
       const { data, error } = await supabase
-        .from("leads")
+        .from("follow_ups")
         .insert(base)
         .select("*")
-        .single<LeadRow>();
+        .single<FollowUpRow>();
       if (error) {
-        window.alert("Failed saving lead: " + error.message);
+        window.alert("Failed saving followUp: " + error.message);
         return;
       }
       const r = data;
-      setLeads((prev) => [fromLeadRow(r), ...prev]);
+      setFollowUps((prev) => [fromFollowUpRow(r), ...prev]);
     } else {
       const { data, error } = await supabase
-        .from("leads")
+        .from("follow_ups")
         .update({
           ...base,
         })
         .eq("id", editingId)
         .select("*")
-        .single<LeadRow>();
+        .single<FollowUpRow>();
 
       if (error) {
-        window.alert("Failed updating lead: " + error.message);
+        window.alert("Failed updating followUp: " + error.message);
         return;
       }
-      const updated = fromLeadRow(data);
-      setLeads((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
+      const updated = fromFollowUpRow(data);
+      setFollowUps((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
     }
 
     setOpenAddEdit(false);
+  }
+
+  async function handleAddNeed() {
+    if (!newNeedText.trim() || !editingId) return;
+    const { data, error } = await supabase.from("needs").insert({
+      follow_up_id: editingId,
+      description: newNeedText.trim(),
+      status: "pending"
+    }).select("*").single<Need>();
+
+    if (error) { window.alert(error.message); return; }
+    setNeeds(p => [...p, data]);
+    setNewNeedText("");
+  }
+
+  async function handleDeleteNeed(id: string) {
+    await supabase.from("needs").delete().eq("id", id);
+    setNeeds(p => p.filter(n => n.id !== id));
   }
 
   // ---- CSV Export / Import
@@ -487,7 +530,7 @@ export default function LeadsPage() {
       "project",
       "notes",
     ] as const;
-    const rows = filteredLeads.map((l) => [
+    const rows = filteredFollowUps.map((l) => [
       l.id,
       l.name,
       l.email === "-" ? "" : l.email,
@@ -514,7 +557,7 @@ export default function LeadsPage() {
     const today = new Date().toISOString().slice(0, 10);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `leads-${today}.csv`;
+    a.download = `followUps-${today}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -556,7 +599,7 @@ export default function LeadsPage() {
       phone: string;
       email: string | null;
       source: string;
-      priority: LeadRow["priority"];
+      priority: FollowUpRow["priority"];
       last_contacted: string;
       project: string | null;
       notes: string | null;
@@ -577,11 +620,11 @@ export default function LeadsPage() {
       const priorityRaw =
         (idx.priority >= 0 ? cols[idx.priority] : "Warm") || "Warm";
       const priorityLower = priorityRaw.trim().toLowerCase();
-      const priority: LeadRow["priority"] =
+      const priority: FollowUpRow["priority"] =
         priorityLower === "hot" ||
           priorityLower === "warm" ||
           priorityLower === "cold"
-          ? (priorityLower as LeadRow["priority"])
+          ? (priorityLower as FollowUpRow["priority"])
           : "warm";
 
       const last_contacted_raw =
@@ -615,7 +658,7 @@ export default function LeadsPage() {
     }
 
     const { data, error } = await supabase
-      .from("leads")
+      .from("follow_ups")
       .insert(toInsert)
       .select("*");
     if (error) {
@@ -623,9 +666,9 @@ export default function LeadsPage() {
       return;
     }
 
-    const added = ((data as LeadRow[]) ?? []).map(fromLeadRow);
-    setLeads((prev) => [...added, ...prev]);
-    window.alert(`Imported ${added.length} lead(s).`);
+    const added = ((data as FollowUpRow[]) ?? []).map(fromFollowUpRow);
+    setFollowUps((prev) => [...added, ...prev]);
+    window.alert(`Imported ${added.length} followUp(s).`);
   }
 
   function splitCsvLine(line: string, expectedCols: number): string[] {
@@ -666,37 +709,37 @@ export default function LeadsPage() {
   }
 
   // ---- computed
-  const hotCount = leads.filter((l) => l.priority === "Hot").length;
-  const warmCount = leads.filter((l) => l.priority === "Warm").length;
-  const coldCount = leads.filter((l) => l.priority === "Cold").length;
+  const hotCount = followUps.filter((l) => l.priority === "Hot").length;
+  const warmCount = followUps.filter((l) => l.priority === "Warm").length;
+  const coldCount = followUps.filter((l) => l.priority === "Cold").length;
 
-  const filteredLeads = React.useMemo(() => {
-    return leads.filter((lead) => {
+  const filteredFollowUps = React.useMemo(() => {
+    return followUps.filter((followUp) => {
       const q = search.toLowerCase().trim();
       const matchesSearch =
         q.length === 0
           ? true
           : [
-            lead.name,
-            lead.email,
-            lead.phone,
-            lead.source,
-            lead.priority,
-            lead.lastContacted,
-            lead.project,
-            lead.notes,
-            lead.createdBy ?? "",
-            lead.editedBy ?? "",
-            lead.editedAt ?? "",
+            followUp.name,
+            followUp.email,
+            followUp.phone,
+            followUp.source,
+            followUp.priority,
+            followUp.lastContacted,
+            followUp.project,
+            followUp.notes,
+            followUp.createdBy ?? "",
+            followUp.editedBy ?? "",
+            followUp.editedAt ?? "",
           ]
             .join(" ")
             .toLowerCase()
             .includes(q);
       const matchesPriority =
-        priorityFilter === "all" ? true : lead.priority === priorityFilter;
+        priorityFilter === "all" ? true : followUp.priority === priorityFilter;
       return matchesSearch && matchesPriority;
     });
-  }, [leads, search, priorityFilter]);
+  }, [followUps, search, priorityFilter]);
 
   const tableHeaders: Array<{ key: string; label: string; className?: string }> =
     [
@@ -764,14 +807,14 @@ export default function LeadsPage() {
             <div className="flex flex-col gap-2">
               <div className="flex flex-col sm:flex-row sm:items-end sm:gap-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-xl font-semibold leading-none tracking-[-0.03em]">
-                    Leads
+                  <h1 className="text-xl font-semibold followUping-none tracking-[-0.03em]">
+                    FollowUps
                   </h1>
                   <span className="inline-flex items-center rounded-full bg-muted/60 px-2 py-[2px] text-[10px] font-medium text-muted-foreground ring-1 ring-border">
                     Digital Marketing
                   </span>
                 </div>
-                <span className="leading-none text-xs text-muted-foreground">
+                <span className="followUping-none text-xs text-muted-foreground">
                   FB / Google Ads • SEO • SMM inquiries
                 </span>
               </div>
@@ -818,7 +861,7 @@ export default function LeadsPage() {
                 onClick={openAddDrawer}
               >
                 <Plus className="h-4 w-4" />
-                <span>Add Lead</span>
+                <span>Add FollowUp</span>
               </Button>
 
               <Button
@@ -859,7 +902,7 @@ export default function LeadsPage() {
                   <Select
                     value={priorityFilter}
                     onValueChange={(val) =>
-                      setPriorityFilter(val as "all" | LeadPriority)
+                      setPriorityFilter(val as "all" | FollowUpPriority)
                     }
                   >
                     <SelectTrigger className="h-9 w-full rounded-lg text-sm">
@@ -888,7 +931,7 @@ export default function LeadsPage() {
                 <Select
                   value={priorityFilter}
                   onValueChange={(val) =>
-                    setPriorityFilter(val as "all" | LeadPriority)
+                    setPriorityFilter(val as "all" | FollowUpPriority)
                   }
                 >
                   <SelectTrigger className="h-9 min-w-[130px] rounded-lg text-sm">
@@ -914,9 +957,9 @@ export default function LeadsPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 xl:max-w-[900px]">
-              <StatCard label="Hot Leads" value={hotCount} tone="red" />
-              <StatCard label="Warm Leads" value={warmCount} tone="amber" />
-              <StatCard label="Cold Leads" value={coldCount} tone="blue" />
+              <StatCard label="Hot FollowUps" value={hotCount} tone="red" />
+              <StatCard label="Warm FollowUps" value={warmCount} tone="amber" />
+              <StatCard label="Cold FollowUps" value={coldCount} tone="blue" />
             </div>
 
             {loading && (
@@ -932,12 +975,12 @@ export default function LeadsPage() {
         <Card className="overflow-hidden border-border/60 bg-background shadow-sm">
           <CardHeader className="border-b border-border/60 px-4 py-3">
             <CardTitle className="flex flex-col text-[13px] font-medium text-muted-foreground sm:flex-row sm:items-center sm:gap-2">
-              <span className="text-sm font-semibold leading-none text-foreground">
-                Leads List
+              <span className="text-sm font-semibold followUping-none text-foreground">
+                FollowUps List
               </span>
-              <span className="text-[11px] leading-none">
-                {filteredLeads.length} result
-                {filteredLeads.length === 1 ? "" : "s"}
+              <span className="text-[11px] followUping-none">
+                {filteredFollowUps.length} result
+                {filteredFollowUps.length === 1 ? "" : "s"}
               </span>
             </CardTitle>
           </CardHeader>
@@ -957,88 +1000,88 @@ export default function LeadsPage() {
                 </thead>
 
                 <tbody className="text-[13px]">
-                  {filteredLeads.length === 0 ? (
+                  {filteredFollowUps.length === 0 ? (
                     <tr>
                       <td
                         className="px-4 py-10 text-center text-sm text-muted-foreground"
                         colSpan={tableHeaders.length}
                       >
-                        {loading ? "Loading…" : "No leads match your filters"}
+                        {loading ? "Loading…" : "No followUps match your filters"}
                       </td>
                     </tr>
                   ) : (
-                    filteredLeads.map((lead, idx) => (
+                    filteredFollowUps.map((followUp, idx) => (
                       <tr
-                        key={lead.id}
+                        key={followUp.id}
                         className={cn(
                           "group border-b border-border/60 transition-colors",
                           "hover:bg-muted/30",
                           idx % 2 === 1 ? "bg-muted/10" : "bg-transparent"
                         )}
                       >
-                        <td className="py-4 pl-4 pr-2 align-top font-medium leading-[1.2]">
+                        <td className="py-4 pl-4 pr-2 align-top font-medium followUping-[1.2]">
                           <div className="flex flex-col">
-                            <span className="truncate">{lead.name}</span>
+                            <span className="truncate">{followUp.name}</span>
                             <span className="text-[11px] font-normal text-muted-foreground">
-                              ID #{lead.id.slice(0, 8)}
+                              ID #{followUp.id.slice(0, 8)}
                             </span>
 
-                            {(lead.editedBy || lead.editedAt) && (
+                            {(followUp.editedBy || followUp.editedAt) && (
                               <div className="mt-1 text-[11px] text-muted-foreground">
                                 Edited
-                                {lead.editedBy ? ` by ${lead.editedBy}` : ""}
-                                {lead.editedAt ? ` on ${lead.editedAt}` : ""}
+                                {followUp.editedBy ? ` by ${followUp.editedBy}` : ""}
+                                {followUp.editedAt ? ` on ${followUp.editedAt}` : ""}
                               </div>
                             )}
                           </div>
                         </td>
-                        <td className="break-all py-4 px-2 align-top leading-[1.2] text-muted-foreground">
-                          {lead.email || "-"}
+                        <td className="break-all py-4 px-2 align-top followUping-[1.2] text-muted-foreground">
+                          {followUp.email || "-"}
                         </td>
-                        <td className="whitespace-nowrap py-4 px-2 align-top leading-[1.2]">
-                          {lead.phone || "-"}
+                        <td className="whitespace-nowrap py-4 px-2 align-top followUping-[1.2]">
+                          {followUp.phone || "-"}
                         </td>
-                        <td className="py-4 px-2 align-top leading-[1.2] text-muted-foreground">
-                          {lead.source || "-"}
+                        <td className="py-4 px-2 align-top followUping-[1.2] text-muted-foreground">
+                          {followUp.source || "-"}
                         </td>
-                        <td className="py-4 px-2 align-top leading-[1.2]">
-                          <PriorityBadge priority={lead.priority} />
+                        <td className="py-4 px-2 align-top followUping-[1.2]">
+                          <PriorityBadge priority={followUp.priority} />
                         </td>
-                        <td className="py-4 px-2 align-top leading-[1.2]">
-                          {lead.project || "-"}
+                        <td className="py-4 px-2 align-top followUping-[1.2]">
+                          {followUp.project || "-"}
                         </td>
-                        <td className="py-4 px-2 align-top leading-[1.2] text-muted-foreground">
-                          {lead.notes ? (
-                            <span title={lead.notes}>
-                              {lead.notes.length > 60
-                                ? lead.notes.slice(0, 60) + "…"
-                                : lead.notes}
+                        <td className="py-4 px-2 align-top followUping-[1.2] text-muted-foreground">
+                          {followUp.notes ? (
+                            <span title={followUp.notes}>
+                              {followUp.notes.length > 60
+                                ? followUp.notes.slice(0, 60) + "…"
+                                : followUp.notes}
                             </span>
                           ) : (
                             "-"
                           )}
                         </td>
-                        <td className="whitespace-nowrap py-4 px-2 align-top leading-[1.2] text-muted-foreground">
-                          {lead.lastContacted}
+                        <td className="whitespace-nowrap py-4 px-2 align-top followUping-[1.2] text-muted-foreground">
+                          {followUp.lastContacted}
                         </td>
-                        <td className="py-4 px-2 align-top leading-[1.2]">
+                        <td className="py-4 px-2 align-top followUping-[1.2]">
                           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                             <Button
                               size="sm"
                               variant="outline"
                               className="h-8 whitespace-nowrap rounded-md border-border bg-background/50 px-2 text-[12px] font-medium shadow-sm hover:bg-background"
-                              onClick={() => void convertToFollowUp(lead)}
-                              aria-label={`Convert ${lead.name} to follow up`}
+                              onClick={() => void convertToProposal(followUp)}
+                              aria-label={`Convert ${followUp.name} to proposal`}
                             >
-                              Convert → Follow Up
+                              Convert → Proposal
                             </Button>
 
                             <Button
                               size="sm"
                               variant="outline"
                               className="h-8 whitespace-nowrap gap-1 rounded-md border-border bg-background/50 px-2 text-[12px] font-medium shadow-sm hover:bg-background"
-                              onClick={() => openEditDrawer(lead)}
-                              aria-label={`Edit ${lead.name}`}
+                              onClick={() => openEditDrawer(followUp)}
+                              aria-label={`Edit ${followUp.name}`}
                             >
                               <Pencil className="h-3.5 w-3.5" />
                               Edit
@@ -1048,8 +1091,8 @@ export default function LeadsPage() {
                               size="sm"
                               variant="outline"
                               className="h-8 whitespace-nowrap gap-1 rounded-md border-red-300/60 bg-red-500/5 px-2 text-[12px] font-medium text-red-600 shadow-sm hover:bg-red-500/10"
-                              onClick={() => void moveToTrash(lead.id)}
-                              aria-label={`Move ${lead.name} to trash`}
+                              onClick={() => void moveToTrash(followUp.id)}
+                              aria-label={`Move ${followUp.name} to trash`}
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                               <span>Move to Trash</span>
@@ -1065,91 +1108,91 @@ export default function LeadsPage() {
 
             {/* MOBILE: CARD LIST */}
             <div className="block md:hidden">
-              {filteredLeads.length === 0 ? (
+              {filteredFollowUps.length === 0 ? (
                 <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-                  {loading ? "Loading…" : "No leads match your filters"}
+                  {loading ? "Loading…" : "No followUps match your filters"}
                 </div>
               ) : (
                 <div className="space-y-3 p-3">
-                  {filteredLeads.map((lead) => (
+                  {filteredFollowUps.map((followUp) => (
                     <div
-                      key={lead.id}
+                      key={followUp.id}
                       className="rounded-lg border border-border/60 bg-background/80 p-3 text-[13px] shadow-sm"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <div className="font-semibold leading-tight">
-                            {lead.name}
+                          <div className="font-semibold followUping-tight">
+                            {followUp.name}
                           </div>
                           <div className="text-[11px] text-muted-foreground">
-                            ID #{lead.id.slice(0, 8)}
+                            ID #{followUp.id.slice(0, 8)}
                           </div>
                         </div>
-                        <PriorityBadge priority={lead.priority} />
+                        <PriorityBadge priority={followUp.priority} />
                       </div>
 
                       <div className="mt-2 space-y-1.5 text-[12px] text-muted-foreground">
-                        {lead.project && (
+                        {followUp.project && (
                           <div className="truncate">
                             <span className="font-medium text-foreground">
                               Project:
                             </span>{" "}
-                            {lead.project}
+                            {followUp.project}
                           </div>
                         )}
 
                         <div className="flex flex-wrap gap-x-3 gap-y-1">
-                          {lead.phone && (
+                          {followUp.phone && (
                             <span className="truncate">
                               <span className="font-medium text-foreground">
                                 Ph:
                               </span>{" "}
-                              {lead.phone}
+                              {followUp.phone}
                             </span>
                           )}
-                          {lead.email && lead.email !== "-" && (
+                          {followUp.email && followUp.email !== "-" && (
                             <span className="truncate">
                               <span className="font-medium text-foreground">
                                 Email:
                               </span>{" "}
-                              {lead.email}
+                              {followUp.email}
                             </span>
                           )}
                         </div>
 
                         <div className="flex flex-wrap gap-x-3 gap-y-1">
-                          {lead.source && (
+                          {followUp.source && (
                             <span className="truncate">
                               <span className="font-medium text-foreground">
                                 Source:
                               </span>{" "}
-                              {lead.source}
+                              {followUp.source}
                             </span>
                           )}
                           <span>
                             <span className="font-medium text-foreground">
                               Last:
                             </span>{" "}
-                            {lead.lastContacted}
+                            {followUp.lastContacted}
                           </span>
                         </div>
 
-                        {lead.notes && (
+                        {followUp.notes && (
                           <div className="truncate">
                             <span className="font-medium text-foreground">
                               Notes:
                             </span>{" "}
-                            {lead.notes.length > 80
-                              ? lead.notes.slice(0, 80) + "…"
-                              : lead.notes}
+                            {followUp.notes.length > 80
+                              ? followUp.notes.slice(0, 80) + "…"
+                              : followUp.notes}
                           </div>
                         )}
 
-                        {(lead.editedBy || lead.editedAt) && (
+                        {(followUp.editedBy || followUp.editedAt) && (
                           <div className="pt-1 text-[11px] text-muted-foreground">
                             Edited
-                            {lead.editedBy ? ` by ${lead.editedBy}` : ""}
-                            {lead.editedAt ? ` on ${lead.editedAt}` : ""}
+                            {followUp.editedBy ? ` by ${followUp.editedBy}` : ""}
+                            {followUp.editedAt ? ` on ${followUp.editedAt}` : ""}
                           </div>
                         )}
                       </div>
@@ -1159,15 +1202,15 @@ export default function LeadsPage() {
                           size="sm"
                           variant="outline"
                           className="h-8 flex-1 min-w-[120px] rounded-md border-border bg-background/50 px-2 text-[12px] font-medium shadow-sm hover:bg-background"
-                          onClick={() => void convertToFollowUp(lead)}
+                          onClick={() => void convertToProposal(followUp)}
                         >
-                          Convert → Follow Up
+                          Convert → Proposal
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           className="h-8 flex-1 min-w-[90px] gap-1 rounded-md border-border bg-background/50 px-2 text-[12px] font-medium shadow-sm hover:bg-background"
-                          onClick={() => openEditDrawer(lead)}
+                          onClick={() => openEditDrawer(followUp)}
                         >
                           <Pencil className="h-3.5 w-3.5" />
                           Edit
@@ -1176,7 +1219,7 @@ export default function LeadsPage() {
                           size="sm"
                           variant="outline"
                           className="h-8 flex-1 min-w-[120px] gap-1 rounded-md border-red-300/60 bg-red-500/5 px-2 text-[12px] font-medium text-red-600 shadow-sm hover:bg-red-500/10"
-                          onClick={() => void moveToTrash(lead.id)}
+                          onClick={() => void moveToTrash(followUp.id)}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           Trash
@@ -1193,9 +1236,9 @@ export default function LeadsPage() {
               <div>
                 Showing{" "}
                 <span className="text-foreground font-medium">
-                  {filteredLeads.length}
+                  {filteredFollowUps.length}
                 </span>{" "}
-                leads
+                followUps
               </div>
 
               <div className="flex items-center gap-2">
@@ -1225,10 +1268,10 @@ export default function LeadsPage() {
       <SidePanel
         open={openAddEdit}
         onOpenChange={setOpenAddEdit}
-        title={editingId ? "Edit Lead" : "Add Lead"}
+        title={editingId ? "Edit FollowUp" : "Add FollowUp"}
         description={
           editingId
-            ? "Update lead details"
+            ? "Update followUp details"
             : "Create a new prospect from your campaigns"
         }
         footer={
@@ -1244,9 +1287,9 @@ export default function LeadsPage() {
 
             <Button
               className="h-9 rounded-md bg-indigo-600 text-[13px] font-medium text-white hover:bg-indigo-700"
-              onClick={() => void handleSaveLead()}
+              onClick={() => void handleSaveFollowUp()}
             >
-              {editingId ? "Save Changes" : "Save Lead"}
+              {editingId ? "Save Changes" : "Save FollowUp"}
             </Button>
           </>
         }
@@ -1305,7 +1348,7 @@ export default function LeadsPage() {
             <Label className="text-[12px] font-medium">Priority</Label>
             <Select
               value={formPriority}
-              onValueChange={(val) => setFormPriority(val as LeadPriority)}
+              onValueChange={(val) => setFormPriority(val as FollowUpPriority)}
             >
               <SelectTrigger className="h-9 text-sm">
                 <SelectValue />
@@ -1351,10 +1394,43 @@ export default function LeadsPage() {
               value={new Date().toLocaleDateString("en-GB")}
               readOnly
             />
-            <p className="text-[11px] leading-none text-muted-foreground">
+            <p className="text-[11px] followUping-none text-muted-foreground">
               This will be saved as today&apos;s date.
             </p>
           </div>
+
+          {/* NEEDS LIST (Edit mode only) */}
+          {editingId && (
+            <div className="grid gap-2 border-t border-border pt-4 mt-2">
+              <Label className="text-[14px] font-semibold text-foreground">Needs / Requirements</Label>
+              {needsLoading ? <p className="text-xs text-muted-foreground">Loading needs...</p> : (
+                <div className="flex flex-col gap-2">
+                  {needs.length === 0 ? (
+                    <p className="text-xs text-muted-foreground italic">No needs recorded yet.</p>
+                  ) : needs.map(n => (
+                    <div key={n.id} className="flex items-center justify-between rounded bg-muted/30 p-2 text-sm">
+                      <span>{n.description}</span>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => void handleDeleteNeed(n.id)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                  <div className="flex items-center gap-2 mt-2">
+                    <Input
+                      className="h-8 text-sm flex-1"
+                      placeholder="Add new need..."
+                      value={newNeedText}
+                      onChange={e => setNewNeedText(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') void handleAddNeed(); }}
+                    />
+                    <Button size="sm" className="h-8 shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => void handleAddNeed()}>
+                      Add
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </SidePanel>
 
@@ -1363,7 +1439,7 @@ export default function LeadsPage() {
         open={openTrash}
         onOpenChange={setOpenTrash}
         title="Trash"
-        description="Leads you’ve moved to trash. Restore or delete permanently."
+        description="FollowUps you’ve moved to trash. Restore or delete permanently."
         footer={
           <>
             <DialogClose asChild>
@@ -1379,14 +1455,14 @@ export default function LeadsPage() {
       >
         {trashLoading ? (
           <p className="text-xs text-muted-foreground">Loading trash…</p>
-        ) : trashedLeads.length === 0 ? (
+        ) : trashedFollowUps.length === 0 ? (
           <div className="flex flex-col items-center gap-2 text-center text-sm text-muted-foreground">
             <RotateCcw className="h-5 w-5" />
             Nothing in trash
           </div>
         ) : (
           <div className="space-y-2">
-            {trashedLeads.map((t) => (
+            {trashedFollowUps.map((t) => (
               <div
                 key={t.id}
                 className="flex items-start justify-between rounded-md border border-border/60 p-2 text-sm"
@@ -1459,7 +1535,7 @@ function StatCard({
 
   return (
     <div className="flex items-start justify-between rounded-lg border border-border/60 bg-background/50 p-3 text-foreground shadow-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 sm:block sm:space-y-2">
-      <div className="flex items-center gap-2 text-[12px] font-medium leading-none text-muted-foreground dark:text-neutral-400">
+      <div className="flex items-center gap-2 text-[12px] font-medium followUping-none text-muted-foreground dark:text-neutral-400">
         <span
           className={cn("h-1.5 w-1.5 rounded-full shadow-sm", toneMap.dot)}
         />
@@ -1467,7 +1543,7 @@ function StatCard({
       </div>
       <div
         className={cn(
-          "inline-flex rounded-md px-2 py-1 text-foreground text-2xl font-semibold leading-none tracking-[-0.04em] ring-1 dark:text-neutral-100",
+          "inline-flex rounded-md px-2 py-1 text-foreground text-2xl font-semibold followUping-none tracking-[-0.04em] ring-1 dark:text-neutral-100",
           toneMap.ring
         )}
       >
