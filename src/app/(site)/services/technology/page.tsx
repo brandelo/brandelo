@@ -1,476 +1,203 @@
 "use client";
 
-import React from "react";
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
-  Globe,
-  Code2,
-  Boxes,
-  ShoppingCart,
-  ServerCog,
-  Wrench,
-  Database,
-  Gauge,
-  ShieldCheck,
-  Rocket,
-  Sparkles,
-  ArrowRight,
-  Tag,
+  Code2, Globe, Boxes, ShoppingCart, Gauge, Wrench,
+  Database, ShieldCheck, ArrowRight, ChevronRight, Plus, Minus, BadgeCheck,
 } from "lucide-react";
 
-/**
- * app/services/technology/page.tsx — Websites only
- * Stack: WordPress, React/Next.js, PHP/Laravel, E-commerce (Shopify/Woo/Headless)
- * Style: Always-dark neon backdrop (no grid), glassy cards, FM v11 tuple easings
- */
-
-// ---- Framer Motion easing (type-safe tuples) ----
-const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
-const EASE_IN_OUT: [number, number, number, number] = [0.42, 0, 0.58, 1];
-
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const fadeUp = (d = 0) => ({
-  initial: { opacity: 0, y: 28 },
+  initial: { opacity: 0, y: 32 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.3 },
-  transition: { duration: 0.7, delay: d, ease: EASE_OUT },
+  viewport: { once: true },
+  transition: { duration: 0.65, delay: d, ease: EASE },
 });
 
-// ---- Content ----
 const SERVICES = [
-  {
-    icon: Code2,
-    title: "Next.js / React Sites",
-    blurb:
-      "Fast, SEO-friendly marketing sites and apps with modern DX, image optimization, and analytics baked in.",
-    bullets: ["App Router", "ISR/SSR", "A11y + Lighthouse 90+"],
-  },
-  {
-    icon: Globe,
-    title: "WordPress (Custom)",
-    blurb:
-      "Block-first themes, ACF blocks, and clean admin—no bloated page builders. Secure, cache-friendly stacks.",
-    bullets: ["ACF/Blocks", "Headless WP", "Hardening + cache"],
-  },
-  {
-    icon: Boxes,
-    title: "PHP / Laravel",
-    blurb:
-      "Robust backends, APIs, and admin panels powering your site features and integrations.",
-    bullets: ["REST/GraphQL", "Queues + Jobs", "Auth + Policies"],
-  },
-  {
-    icon: ShoppingCart,
-    title: "E-commerce",
-    blurb:
-      "WooCommerce, Shopify, or headless storefronts focused on speed, UX, and conversion.",
-    bullets: ["Checkout UX", "Payments + GST", "Headless carts"],
-  },
-  {
-    icon: Gauge,
-    title: "Performance & SEO",
-    blurb:
-      "Web vitals, code-split, image/CDN strategy, schema, and analytics for measurable growth.",
-    bullets: ["Core Web Vitals", "CDN/Images", "Schema + tracking"],
-  },
-  {
-    icon: Wrench,
-    title: "Care & Maintenance",
-    blurb:
-      "Monthly updates, uptime, backups, and SLA support to keep your site healthy.",
-    bullets: ["SLA support", "Backups/Monitoring", "Patch & security"],
-  },
-] as const;
+  { icon: Code2, title: "Next.js / React", desc: "Fast, SEO-friendly marketing sites and apps with modern DX, image optimization, and analytics baked in.", bullets: ["App Router & ISR/SSR", "A11y + Lighthouse 90+", "Edge-ready deployment"], accent: "from-cyan-500/20 to-cyan-500/0", iconColor: "text-cyan-400", border: "hover:border-cyan-500/40" },
+  { icon: Globe, title: "WordPress (Custom)", desc: "Block-first themes, ACF blocks, and clean admin — no bloated page builders. Secure, cache-friendly stacks.", bullets: ["ACF/Block editor", "Headless WP", "Hardening + cache"], accent: "from-blue-500/20 to-blue-500/0", iconColor: "text-blue-400", border: "hover:border-blue-500/40" },
+  { icon: Boxes, title: "PHP / Laravel", desc: "Robust backends, REST/GraphQL APIs, and admin panels powering your site features and integrations.", bullets: ["REST + GraphQL APIs", "Queues + Jobs", "Auth & Policies"], accent: "from-violet-500/20 to-violet-500/0", iconColor: "text-violet-400", border: "hover:border-violet-500/40" },
+  { icon: ShoppingCart, title: "E-commerce", desc: "WooCommerce, Shopify, or headless storefronts focused on speed, UX, and conversion.", bullets: ["Checkout UX", "Payments + GST", "Headless carts"], accent: "from-emerald-500/20 to-emerald-500/0", iconColor: "text-emerald-400", border: "hover:border-emerald-500/40" },
+  { icon: Gauge, title: "Performance & SEO", desc: "Web vitals, code-split, image/CDN strategy, schema, and analytics for measurable growth.", bullets: ["Core Web Vitals", "CDN/Image pipeline", "Schema + tracking"], accent: "from-indigo-500/20 to-indigo-500/0", iconColor: "text-indigo-400", border: "hover:border-indigo-500/40" },
+  { icon: Wrench, title: "Care & Maintenance", desc: "Monthly updates, uptime monitoring, backups, and SLA support to keep your site healthy 24/7.", bullets: ["SLA support plans", "Backups + monitoring", "Patch & security"], accent: "from-teal-500/20 to-teal-500/0", iconColor: "text-teal-400", border: "hover:border-teal-500/40" },
+];
 
-const STEPS = [
-  { icon: Globe, title: "Scope", desc: "Goals, sitemap, integrations, and KPIs." },
-  { icon: Database, title: "Architecture", desc: "Content model, components, and data flows." },
-  { icon: Code2, title: "Build", desc: "Iterative sprints with previews and QA." },
-  { icon: Gauge, title: "Optimize", desc: "CWV, SEO, and accessibility polish." },
-  { icon: ShieldCheck, title: "Launch + Care", desc: "Hardening, observability, and handoff." },
-] as const;
+const PROCESS = [
+  { num: "01", icon: Globe, title: "Scope", desc: "Goals, sitemap, integrations, tech stack, and KPIs aligned before a line is written." },
+  { num: "02", icon: Database, title: "Architecture", desc: "Content model, component structure, data flows, and API contracts designed to scale." },
+  { num: "03", icon: Code2, title: "Build", desc: "Iterative sprints with staging previews, code reviews, and QA at every milestone." },
+  { num: "04", icon: Gauge, title: "Optimize", desc: "Core Web Vitals, SEO, accessibility polish — Lighthouse 90+ before launch." },
+  { num: "05", icon: ShieldCheck, title: "Launch + Care", desc: "Hardening, observability, zero-downtime deploy, and ongoing maintenance plans." },
+];
 
-const FAQ = [
-  { q: "Which platform should I pick?", a: "Marketing sites/blogs → WordPress or Next.js; complex UX/apps → Next.js/React; stores → WooCommerce/Shopify or headless." },
-  { q: "Do you migrate sites?", a: "Yes. Zero-downtime DNS cutovers with redirects, content mapping, and SEO preservation." },
-  { q: "Hosting and CDN?", a: "We set up modern hosts (Vercel/Netlify/Cloudflare, or managed WP) with image/CDN pipelines." },
-  { q: "Maintenance?", a: "Monthly care plans: updates, backups, uptime, and priority fixes." },
-] as const;
+const RESULTS = [
+  { tag: "Next.js", metric: "+92", label: "Lighthouse Performance score after headless rebuild", color: "text-cyan-400" },
+  { tag: "WooCommerce", metric: "+14%", label: "Checkout conversion rate after UX revamp", color: "text-emerald-400" },
+  { tag: "WordPress", metric: "−58%", label: "Admin time after ACF block theme migration", color: "text-indigo-400" },
+];
 
-const KPIS = [
-  { label: "LCP Improvement", value: 48, suffix: "%" },
-  { label: "Conversion Uplift", value: 22, suffix: "%" },
-  { label: "Bug Regression", value: 63, suffix: "%" },
-  { label: "Time-to-Ship", value: 35, suffix: "%" },
-] as const;
+const FAQS = [
+  { q: "Which platform should I pick?", a: "Marketing sites/blogs → WordPress or Next.js; complex UX/apps → Next.js/React; stores → WooCommerce/Shopify or headless. We'll recommend the right fit after scoping." },
+  { q: "Do you migrate existing sites?", a: "Yes. We do zero-downtime DNS cutovers with redirect mapping, content migration, and SEO preservation so you don't lose rankings." },
+  { q: "What about hosting and CDN?", a: "We set up modern hosts (Vercel, Netlify, Cloudflare, or managed WP) with image pipelines, CDN, and monitoring tailored to your stack." },
+  { q: "Do you offer maintenance plans?", a: "Yes — monthly care plans with updates, backups, uptime monitoring, and priority bug fixes. Ask about SLA tiers on the contact form." },
+];
 
-const CASES = [
-  { tag: "Next.js", title: "Headless WP → Next.js", metric: "+92 Lighthouse Perf", icon: Code2 },
-  { tag: "WooCommerce", title: "Checkout revamp", metric: "+14% CVR", icon: ShoppingCart },
-  { tag: "WordPress", title: "ACF block theme", metric: "-58% admin time", icon: Globe },
-] as const;
-
-// ---- Page ----
-export default function TechnologyWebsitesPage() {
-  return (
-    <div className="relative min-h-screen text-white">
-      <NeonBackdrop /> {/* full-bleed, fixed; no grid/check pattern */}
-      <main className="relative overflow-hidden">
-        <Aurora />
-
-        <Hero />
-
-        {/* Services */}
-        <section id="services" className="relative">
-          <div className="mx-auto max-w-7xl px-6 py-10 md:py-16">
-            <motion.h2 {...fadeUp(0)} className="text-2xl md:text-4xl font-semibold">
-              What we build (Web)
-            </motion.h2>
-            <motion.p {...fadeUp(0.05)} className="mt-2 max-w-2xl text-white/80">
-              Websites only—WordPress, React/Next.js, PHP/Laravel, and e-commerce. Fast, secure, and measurable.
-            </motion.p>
-
-            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
-              {SERVICES.map((s, i) => (
-                <ServiceCard key={s.title} {...s} index={i} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Process timeline */}
-        <section className="relative">
-          <div className="mx-auto max-w-7xl px-6 py-10 md:py-16">
-            <motion.h2 {...fadeUp(0)} className="text-2xl md:text-4xl font-semibold">
-              How we ship
-            </motion.h2>
-            <motion.p {...fadeUp(0.05)} className="mt-2 max-w-2xl text-white/80">
-              From scope to launch and care—calm, repeatable, and transparent.
-            </motion.p>
-
-            <ol className="mt-10 grid gap-5 md:grid-cols-5">
-              {STEPS.map((st, i) => (
-                <motion.li key={st.title} {...fadeUp(i * 0.05)} className="glassy-card group relative rounded-2xl p-5">
-                  <div className="flex items-center gap-3">
-                    <span className="rounded-xl border border-white/15 bg-white/10 p-2 backdrop-blur">
-                      <st.icon className="h-5 w-5" />
-                    </span>
-                    <p className="font-medium">{st.title}</p>
-                  </div>
-                  <p className="mt-3 text-sm leading-relaxed text-white/80">{st.desc}</p>
-                  <div className="absolute -right-2 -top-2 hidden h-8 w-8 rotate-6 rounded-full bg-gradient-to-tr from-fuchsia-400/40 to-emerald-400/40 blur-sm md:block" />
-                </motion.li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        {/* Case highlights */}
-        <section className="relative">
-          <div className="mx-auto max-w-7xl px-6 py-10 md:py-16">
-            <motion.h2 {...fadeUp(0)} className="text-2xl md:text-4xl font-semibold">
-              Recent outcomes
-            </motion.h2>
-            <div className="mt-8 grid gap-5 md:grid-cols-3">
-              {CASES.map((c, i) => (
-                <motion.div key={c.title} {...fadeUp(0.05 * i)} className="glassy-card relative rounded-2xl p-6">
-                  <span className="inline-flex items-center gap-2 text-xs font-medium text-white/80">
-                    <Tag className="h-3.5 w-3.5" />
-                    {c.tag}
-                  </span>
-                  <div className="mt-3 flex items-start gap-3">
-                    <div className="rounded-xl border border-white/15 bg-white/10 p-2 backdrop-blur">
-                      <c.icon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-base font-medium">{c.title}</p>
-                      <p className="mt-1 text-sm text-emerald-300">{c.metric}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section className="relative">
-          <div className="mx-auto max-w-7xl px-6 pb-6 md:pb-12">
-            <motion.div {...fadeUp(0)} className="glassy-card rounded-2xl p-2">
-              <Accordion items={FAQ} />
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Contact CTA */}
-        <section id="contact" className="relative">
-          <div className="mx-auto max-w-7xl px-6 py-14 md:py-20">
-            <motion.div {...fadeUp(0)} className="glassy-card relative overflow-hidden rounded-3xl p-8 md:p-12">
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(16,185,129,.18),transparent_35%),radial-gradient(circle_at_80%_30%,rgba(99,102,241,.18),transparent_35%),radial-gradient(circle_at_50%_80%,rgba(236,72,153,.18),transparent_35%)]" />
-              <div className="relative z-10 grid items-center gap-6 md:grid-cols-[1.2fr_.8fr]">
-                <div>
-                  <h3 className="text-balance text-2xl md:text-4xl font-semibold">
-                    Need a high-performing website?
-                  </h3>
-                  <p className="mt-2 max-w-xl text-white/80">
-                    Book a 30-min consult. We’ll audit your current stack and map a practical upgrade path.
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-                  <Link
-                    href="/contact"
-                    className="group inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-white backdrop-blur transition hover:-translate-y-0.5"
-                  >
-                    <span className="relative overflow-hidden">
-                      <span className="relative z-10">Book a session</span>
-                      <span className="absolute inset-0 -translate-x-full bg-[linear-gradient(115deg,transparent_0%,transparent_45%,rgba(255,255,255,.7)_55%,transparent_65%,transparent_100%)] bg-[length:250%_100%] transition-transform group-hover:translate-x-0" />
-                    </span>
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
-                  <Link
-                    href="#services"
-                    className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-white/90 backdrop-blur hover:-translate-y-0.5"
-                  >
-                    View packages
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Sticky CTA footer */}
-        <div className="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-4">
-          <div className="pointer-events-auto glassy-card flex items-center gap-3 rounded-2xl px-4 py-3 shadow-xl">
-            <Rocket className="h-4 w-4" />
-            <span className="text-sm">Free homepage speed audit</span>
-            <Link
-              href="/contact"
-              className="ml-1 inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-1.5 text-xs hover:-translate-y-0.5"
-            >
-              Talk to engineering
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Tiny style helpers — dark baseline */}
-        <style>{`
-          .glassy-card {
-            background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
-            border: 1px solid rgba(255,255,255,.15);
-            backdrop-filter: blur(12px);
-          }
-        `}</style>
-      </main>
-    </div>
-  );
-}
-
-/* ---- Small Components ---- */
-
-function Hero() {
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const rx = useSpring(useTransform(my, [0, 1], [-8, 8]), { stiffness: 120, damping: 20 });
-  const ry = useSpring(useTransform(mx, [0, 1], [8, -8]), { stiffness: 120, damping: 20 });
-
-  const onMouseMove = (e: React.MouseEvent) => {
-    const b = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    mx.set((e.clientX - b.left) / b.width);
-    my.set((e.clientY - b.top) / b.height);
-  };
+export default function TechnologyPage() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <section className="relative" onMouseMove={onMouseMove}>
-      <div className="mx-auto max-w-7xl px-6 pt-24 pb-8 md:pt-32">
-        <motion.div
-          {...fadeUp(0)}
-          className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm text-white/90 backdrop-blur"
-        >
-          <Sparkles className="h-4 w-4" />
-          <span>Web that ships fast</span>
+    <div className="min-h-screen bg-[#080c18] text-white">
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-[#080c18]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(6,182,212,0.12),transparent)]" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[400px] rounded-full bg-cyan-600/6 blur-[120px]" />
+        <div className="absolute top-1/2 right-0 w-[400px] h-[400px] rounded-full bg-indigo-600/6 blur-[100px]" />
+      </div>
+
+      {/* Hero */}
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-28 pb-20">
+        <motion.div {...fadeUp(0)} className="flex items-center gap-2 text-xs text-white/35 font-medium mb-8">
+          <Link href="/services" className="hover:text-white/60 transition-colors">Services</Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="text-white/60">Technology</span>
         </motion.div>
-
-        <motion.h1
-          {...fadeUp(0.1)}
-          className="mt-6 text-balance text-4xl md:text-6xl font-semibold leading-tight tracking-tight"
-        >
+        <motion.div {...fadeUp(0.04)} className="inline-flex items-center gap-2.5 rounded-full border border-cyan-500/25 bg-cyan-500/10 px-4 py-2 backdrop-blur mb-8">
+          <Code2 className="h-3.5 w-3.5 text-cyan-400" />
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300/80">Technology Services</span>
+        </motion.div>
+        <motion.h1 {...fadeUp(0.08)} className="text-[clamp(38px,6.5vw,84px)] font-black leading-[0.92] tracking-tight max-w-5xl">
           Websites that{" "}
-          <span className="relative inline-block">
-            <motion.span style={{ rotateX: rx as any, rotateY: ry as any }} className="inline-block will-change-transform">
-              load fast, sell better
-            </motion.span>
-            <span className="pointer-events-none absolute inset-x-0 bottom-1 h-2 bg-gradient-to-r from-fuchsia-400/30 via-emerald-400/30 to-indigo-400/30 blur" />
+          <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-500 bg-clip-text text-transparent italic">
+            load fast, sell better.
           </span>
         </motion.h1>
-
-        <motion.p
-          {...fadeUp(0.2)}
-          className="mt-5 max-w-2xl text-pretty text-lg md:text-xl text-white/80"
-        >
-          WordPress, React/Next.js, PHP/Laravel, and e-commerce done right—speed, stability, and ROI.
+        <motion.p {...fadeUp(0.14)} className="mt-6 text-lg text-white/50 max-w-2xl leading-relaxed">
+          WordPress, React/Next.js, PHP/Laravel, and e-commerce — built right. We prioritize speed, stability, SEO, and ROI at every layer of the stack.
         </motion.p>
-
-        <motion.div {...fadeUp(0.3)} className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-          <Link
-            href="#contact"
-            className="group inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-white backdrop-blur transition hover:-translate-y-0.5"
-          >
-            <span className="relative overflow-hidden">
-              <span className="relative z-10">Start a build sprint</span>
-              <span className="absolute inset-0 -translate-x-full bg-[linear-gradient(115deg,transparent_0%,transparent_40%,rgba(255,255,255,.6)_50%,transparent_60%,transparent_100%)] bg-[length:250%_100%] transition-transform group-hover:translate-x-0" />
-            </span>
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        <motion.div {...fadeUp(0.2)} className="mt-10 flex flex-wrap gap-3">
+          <Link href="/contact" className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-600 text-white text-sm font-bold shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:shadow-[0_0_40px_rgba(6,182,212,0.55)] hover:-translate-y-0.5 transition-all duration-200">
+            Start a build sprint <ArrowRight className="h-4 w-4" />
           </Link>
-          <Link
-            href="#services"
-            className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-white/90 backdrop-blur transition hover:-translate-y-0.5"
-          >
+          <Link href="#services" className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-white/15 text-white/80 text-sm font-semibold hover:bg-white/8 hover:-translate-y-0.5 transition-all duration-200">
             Explore services
           </Link>
         </motion.div>
-      </div>
+        <motion.div {...fadeUp(0.26)} className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[{ val: "+48%", label: "LCP Improvement" }, { val: "+22%", label: "Conversion Uplift" }, { val: "−63%", label: "Bug Regression" }, { val: "−35%", label: "Time-to-Ship" }].map((s) => (
+            <div key={s.label} className="rounded-2xl border border-white/8 bg-white/[0.04] p-5 text-center backdrop-blur">
+              <div className="text-2xl sm:text-3xl font-black tracking-tight text-white">{s.val}</div>
+              <div className="text-xs text-white/40 font-medium mt-1">{s.label}</div>
+            </div>
+          ))}
+        </motion.div>
+      </section>
 
-      {/* KPI strip */}
-      <div className="mx-auto max-w-7xl px-6 pb-14">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {KPIS.map(({ label, value, suffix }, i) => (
-            <motion.div key={label} {...fadeUp(0.05 * i)} className="glassy-card rounded-2xl p-4 text-center">
-              <AnimatedCounter to={value} suffix={suffix} />
-              <p className="mt-1 text-sm text-white/70">{label}</p>
+      {/* Services */}
+      <section id="services" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-16 sm:py-24">
+        <motion.div {...fadeUp(0)} className="mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 text-white/40 text-xs font-semibold uppercase tracking-widest mb-4">What We Build</div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">Our technology <span className="text-cyan-400">services.</span></h2>
+        </motion.div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {SERVICES.map((s, i) => (
+            <motion.article key={s.title} {...fadeUp(i * 0.07)} className={`relative group rounded-3xl border border-white/8 bg-white/[0.04] p-7 backdrop-blur transition-all duration-300 hover:bg-white/[0.07] ${s.border} overflow-hidden`}>
+              <div className={`absolute inset-0 bg-gradient-to-br ${s.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+              <div className="relative z-10">
+                <div className={`inline-flex p-3 rounded-2xl bg-white/8 border border-white/10 mb-5 ${s.iconColor}`}><s.icon className="h-6 w-6" /></div>
+                <h3 className="text-lg font-bold tracking-tight mb-2">{s.title}</h3>
+                <p className="text-sm text-white/55 leading-relaxed mb-5">{s.desc}</p>
+                <ul className="space-y-2 mb-6">{s.bullets.map((b) => (<li key={b} className="flex items-center gap-2.5 text-sm text-white/70"><BadgeCheck className={`h-4 w-4 flex-shrink-0 ${s.iconColor}`} />{b}</li>))}</ul>
+                <Link href="/contact" className="inline-flex items-center gap-1.5 text-sm font-semibold text-white/40 group-hover:text-white/80 transition-colors">Get started <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" /></Link>
+              </div>
+            </motion.article>
+          ))}
+        </div>
+      </section>
+
+      {/* Process */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-16 sm:py-24 border-t border-white/[0.06]">
+        <motion.div {...fadeUp(0)} className="mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 text-white/40 text-xs font-semibold uppercase tracking-widest mb-4">Our Process</div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">How we <span className="text-blue-400">ship.</span></h2>
+          <p className="mt-3 text-white/50 max-w-xl">From scope to launch and care — calm, repeatable, and transparent.</p>
+        </motion.div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {PROCESS.map((step, i) => (
+            <motion.div key={step.num} {...fadeUp(i * 0.06)} className="rounded-2xl border border-white/8 bg-white/[0.04] p-6 backdrop-blur">
+              <div className="text-4xl font-black text-white/8 mb-3 leading-none">{step.num}</div>
+              <step.icon className="h-5 w-5 text-cyan-400 mb-3" />
+              <h3 className="font-bold text-white mb-2">{step.title}</h3>
+              <p className="text-xs text-white/45 leading-relaxed">{step.desc}</p>
             </motion.div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Floating orbs reacting to cursor */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -left-10 top-10 h-32 w-32 rounded-full bg-gradient-to-tr from-emerald-400/25 to-cyan-400/25 blur-2xl"
-        style={{ x: useTransform(mx, (v) => (v - 0.5) * 40), y: useTransform(my, (v) => (v - 0.5) * 40) }}
-      />
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute right-6 top-24 h-24 w-24 rounded-full bg-gradient-to-tr from-fuchsia-400/25 to-indigo-400/25 blur-2xl"
-        style={{ x: useTransform(mx, (v) => (0.5 - v) * 40), y: useTransform(my, (v) => (0.5 - v) * 40) }}
-      />
-    </section>
-  );
-}
+      {/* Results */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-16 sm:py-24 border-t border-white/[0.06]">
+        <motion.div {...fadeUp(0)} className="mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 text-white/40 text-xs font-semibold uppercase tracking-widest mb-4">Outcomes</div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">Real <span className="text-emerald-400">results.</span></h2>
+        </motion.div>
+        <div className="grid sm:grid-cols-3 gap-4">
+          {RESULTS.map((r, i) => (
+            <motion.div key={r.tag} {...fadeUp(i * 0.07)} className="rounded-3xl border border-white/8 bg-white/[0.04] p-8 backdrop-blur">
+              <div className="text-xs font-bold uppercase tracking-widest text-white/30 mb-4">{r.tag}</div>
+              <div className={`text-5xl font-black tracking-tight mb-2 ${r.color}`}>{r.metric}</div>
+              <p className="text-sm text-white/55 leading-relaxed">{r.label}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-function ServiceCard({ icon: Icon, title, blurb, bullets, index }: any) {
-  return (
-    <motion.article {...fadeUp(0.05 * index)} whileHover={{ y: -4 }} className="glassy-card group relative rounded-2xl p-5">
-      <div className="flex items-center gap-3">
-        <span className="rounded-xl border border-white/15 bg-white/10 p-2 backdrop-blur">
-          <Icon className="h-5 w-5" />
-        </span>
-        <h3 className="text-base font-semibold">{title}</h3>
-      </div>
-      <p className="mt-3 text-sm text-white/80">{blurb}</p>
-      <ul className="mt-4 space-y-2 text-sm">
-        {bullets.map((b: string) => (
-          <li key={b} className="flex items-start gap-2">
-            <ShieldCheck className="mt-0.5 h-4 w-4 flex-none" />
-            <span className="text-white/85">{b}</span>
-          </li>
-        ))}
-      </ul>
-      <Link href="/contact" className="mt-4 inline-flex items-center gap-1 text-sm font-medium hover:underline underline-offset-2">
-        Learn more <ArrowRight className="h-3.5 w-3.5" />
-      </Link>
-      <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-gradient-to-tr from-emerald-400/30 to-indigo-400/30 blur-xl transition-opacity group-hover:opacity-100" />
-    </motion.article>
-  );
-}
+      {/* FAQ */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-16 sm:py-24 border-t border-white/[0.06]">
+        <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12 items-start">
+          <motion.div {...fadeUp(0)}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 text-white/40 text-xs font-semibold uppercase tracking-widest mb-4">FAQ</div>
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tight mb-4">Got <span className="text-cyan-400">questions?</span></h2>
+            <p className="text-white/45 text-sm leading-relaxed mb-8">The most common questions about our tech stack, process, and care plans.</p>
+            <Link href="/contact" className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 text-sm font-semibold hover:bg-cyan-500/15 transition">
+              Talk to us <ArrowRight className="h-4 w-4" />
+            </Link>
+          </motion.div>
+          <div className="space-y-3">
+            {FAQS.map((faq, i) => (
+              <motion.div key={i} {...fadeUp(i * 0.06)} className="rounded-2xl border border-white/8 bg-white/[0.04] overflow-hidden">
+                <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left">
+                  <span className="text-sm font-semibold text-white/90">{faq.q}</span>
+                  {openFaq === i ? <Minus className="h-4 w-4 text-cyan-400 flex-shrink-0" /> : <Plus className="h-4 w-4 text-white/40 flex-shrink-0" />}
+                </button>
+                <AnimatePresence initial={false}>
+                  {openFaq === i && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }}>
+                      <div className="px-6 pb-5 text-sm text-white/50 leading-relaxed">{faq.a}</div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-function AnimatedCounter({ to, suffix = "" }: { to: number; suffix?: string }) {
-  return (
-    <motion.span
-      className="block text-2xl md:text-3xl font-semibold"
-      initial={{ opacity: 0, y: 6 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.6 }}
-      transition={{ duration: 0.6, ease: EASE_OUT }}
-    >
-      <Counter to={to} />
-      {suffix}
-    </motion.span>
-  );
-}
-
-function Counter({ to }: { to: number }) {
-  const decimals = String(to).includes(".") ? 1 : 0;
-  return (
-    <AnimatePresence mode="wait">
-      <motion.span key={to} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: EASE_OUT }}>
-        {to.toFixed(decimals)}
-      </motion.span>
-    </AnimatePresence>
-  );
-}
-
-function Accordion({ items }: { items: ReadonlyArray<{ q: string; a: string }> }) {
-  return (
-    <div className="divide-y divide-white/10">
-      {items.map((it) => (
-        <details key={it.q} className="group p-4">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
-            <span className="text-sm font-medium">{it.q}</span>
-            <ArrowRight className="h-4 w-4 transition group-open:rotate-90" />
-          </summary>
-          <p className="mt-2 text-sm text-white/80">{it.a}</p>
-        </details>
-      ))}
-    </div>
-  );
-}
-
-/* ---- Backdrops (no grid) ---- */
-function Aurora() {
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-      {/* soft color swells */}
-      <motion.div
-        className="absolute -top-32 left-1/2 h-[42rem] w-[42rem] -translate-x-1/2 rounded-full bg-gradient-to-tr from-indigo-400/25 via-emerald-400/25 to-fuchsia-400/25 blur-3xl"
-        initial={{ opacity: 0.2, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.2, ease: EASE_OUT }}
-      />
-      <motion.div
-        className="absolute bottom-[-20%] left-[10%] h-72 w-72 rounded-full bg-gradient-to-tr from-fuchsia-400/20 to-cyan-400/20 blur-3xl"
-        animate={{ y: [0, -12, 0] }}
-        transition={{ repeat: Infinity, duration: 8, ease: EASE_IN_OUT }}
-      />
-      <motion.div
-        className="absolute right-[10%] top-[20%] h-72 w-72 rounded-full bg-gradient-to-tr from-emerald-400/20 to-indigo-400/20 blur-3xl"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 9, ease: EASE_IN_OUT }}
-      />
-    </div>
-  );
-}
-
-/* Full-bleed neon background (same as Design page) */
-function NeonBackdrop() {
-  return (
-    <div className="pointer-events-none fixed inset-0 -z-[100]">
-      {/* Base */}
-      <div className="absolute inset-0 bg-[#0b1020]" />
-      {/* Smooth aurora only (no grid) */}
-      <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_10%,rgba(99,102,241,0.25),transparent_50%),radial-gradient(70%_50%_at_80%_20%,rgba(34,197,94,0.20),transparent_50%)]" />
-      {/* Slow conic glow */}
-      <div
-        aria-hidden
-        className="absolute -top-40 left-1/2 h-[70rem] w-[70rem] -translate-x-1/2 rounded-full blur-3xl opacity-35"
-        style={{
-          background:
-            "conic-gradient(from 180deg at 50% 50%, rgba(59,130,246,0.35), rgba(168,85,247,0.35), rgba(34,197,94,0.35), rgba(59,130,246,0.35))",
-          animation: "spin 50s linear infinite",
-        }}
-      />
-      <style jsx>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      {/* CTA */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pb-24">
+        <motion.div {...fadeUp(0)} className="relative overflow-hidden rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-cyan-600/8 via-blue-600/6 to-indigo-600/10 p-10 sm:p-14 text-center backdrop-blur">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_0%,rgba(6,182,212,0.1),transparent)]" />
+          <div className="relative z-10">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight mb-4">Need a high-performing website?</h2>
+            <p className="text-white/50 text-base mb-8 max-w-lg mx-auto">Book a free 30-min consult. We'll audit your current stack and map a practical upgrade path.</p>
+            <Link href="/contact" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-600 text-white text-sm font-bold shadow-[0_0_40px_rgba(6,182,212,0.4)] hover:shadow-[0_0_55px_rgba(6,182,212,0.55)] hover:-translate-y-0.5 transition-all duration-200">
+              Book a session <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </motion.div>
+      </section>
     </div>
   );
 }

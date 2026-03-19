@@ -62,7 +62,7 @@ export default function Testimonials({
     <section
       className={[
         "relative mx-auto max-w-7xl px-4 py-12 sm:py-16",
-        "bg-[#fff] text-[#0e0e0e] dark:bg-[#0b0f0e] dark:text-white",
+        "bg-[#F4F4F5] text-[#0e0e0e] dark:bg-[#0b0f0e] dark:text-white",
         "overflow-hidden rounded-xl",
         className,
       ].join(" ")}

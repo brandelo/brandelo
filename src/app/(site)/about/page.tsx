@@ -1,368 +1,372 @@
 "use client";
 
-import { motion, useScroll, useSpring, useTransform, useReducedMotion } from "framer-motion";
+import { useRef } from "react";
+import Link from "next/link";
 import Image from "next/image";
-import { useMemo, useRef } from "react";
-import { Sparkles, Stars, ArrowRight, Target, Rocket, ChartLine, Trophy, Globe2, Handshake, Heart } from "lucide-react";
-import FAQSectionWDB from "@/components/Faq";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowRight, ArrowUpRight, Zap, Target, TrendingUp, Sparkles } from "lucide-react";
 
-// import TestimonialSection from "@/components/Testimonial2";
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-/* ---------- Data ---------- */
-const TEAM = [
-  { name: "Sarah Lee", role: "CEO", img: "https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?q=80&w=1200&auto=format&fit=crop" },
-  { name: "James Smith", role: "Marketing Head", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200&auto=format&fit=crop" },
-  { name: "Emily Johnson", role: "Creative Director", img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop" },
-];
-
-const LOGOS = [
-  "https://images.unsplash.com/photo-1581287053822-5e1af8f6c8d0?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1542744173-05336fcc7ad4?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1508830524289-0adcbe822b40?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop",
-];
-
-/* ---------- Easing (FM v11 tuples) ---------- */
-const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
-const LINEAR: [number, number, number, number] = [0, 0, 1, 1];
-
-const fx = (delay = 0, y = 20) => ({
+const fx = (delay = 0, y = 28) => ({
   initial: { opacity: 0, y },
   whileInView: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, ease: EASE_OUT, delay },
-  viewport: { once: true, amount: 0.25 },
+  transition: { duration: 0.65, ease: EASE, delay },
+  viewport: { once: true, amount: 0.15 },
 });
 
-/* ---------- Full-bleed neon backdrop ---------- */
-function NeonBackdrop() {
+/* ── Infinite Marquee ── */
+function Marquee({ text, speed = 28, dark = false, italic = false }: {
+  text: string; speed?: number; dark?: boolean; italic?: boolean;
+}) {
+  const chunk = text + "  ·  ";
+  const row = chunk.repeat(14);
   return (
-    <div className="pointer-events-none fixed inset-0 -z-10">
-      <div className="absolute inset-0 bg-[#0b1020]" />
-      <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_10%,rgba(99,102,241,0.25),transparent_50%),radial-gradient(70%_50%_at_80%_20%,rgba(34,197,94,0.20),transparent_50%)]" />
-      <div className="absolute inset-0 opacity-40 [mask-image:radial-gradient(70%_60%_at_50%_42%,black,transparent)]">
-        <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid-about" width="32" height="32" patternUnits="userSpaceOnUse">
-              <path d="M 32 0 L 0 0 0 32" fill="none" stroke="white" strokeOpacity="0.06" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid-about)" />
-        </svg>
-      </div>
-      <div
-        aria-hidden
-        className="absolute -top-40 left-1/2 h-[70rem] w-[70rem] -translate-x-1/2 rounded-full blur-3xl opacity-35"
-        style={{
-          background:
-            "conic-gradient(from 180deg at 50% 50%, rgba(59,130,246,0.35), rgba(168,85,247,0.35), rgba(34,197,94,0.35), rgba(59,130,246,0.35))",
-          animation: "spin 50s linear infinite",
-        }}
-      />
-      <style jsx>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    <div className={`overflow-hidden py-5 select-none ${dark ? "bg-[#0e0e0e]" : "bg-white border-y border-black/[0.07]"}`}>
+      <motion.div
+        className="flex whitespace-nowrap"
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{ duration: speed, ease: "linear", repeat: Infinity }}
+      >
+        {[row, row].map((r, i) => (
+          <span key={i} className={`text-[clamp(20px,3vw,36px)] font-black uppercase tracking-tight pr-8 ${italic ? "italic" : ""} ${dark ? "text-white/80" : "text-[#111]"}`}>
+            {r}
+          </span>
+        ))}
+      </motion.div>
     </div>
   );
 }
 
-export default function AboutUs() {
-  const prefersReduced = useReducedMotion();
+/* ── Section label ── */
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/[0.04] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-black/45 mb-5">
+      {children}
+    </div>
+  );
+}
+
+export default function AboutPage() {
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const bar = useSpring(scrollYProgress, { stiffness: 140, damping: 20, mass: 0.2 });
-  const heroFade = useTransform(scrollYProgress, [0, 1], [1, 0.88]);
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
-  const yearCards = useMemo(
-    () => [
-      { year: "2018", text: "Launched WDB with a simple goal: make growth feel inevitable." },
-      { year: "2020", text: "Scaled beyond borders — 50+ clients across 7 countries." },
-      { year: "2023", text: "Recognized among top digital studios for performance creativity." },
-      { year: "2025", text: "Shipped our analytics OS and creative system for faster iteration." },
-    ],
-    []
-  );
+  const SERVICES = [
+    { num: "01", title: "Search Engine Optimisation", desc: "Ranking your brand at the top with on-page, off-page, and technical SEO that compounds over time.", icon: TrendingUp },
+    { num: "02", title: "Social Media Marketing", desc: "Amplifying your voice across every platform with targeted, high-engagement content that builds community.", icon: Sparkles },
+    { num: "03", title: "PPC & Performance Ads", desc: "ROI-driven campaigns on Google, Meta & beyond — every rupee tracked, every conversion counted.", icon: Zap },
+    { num: "04", title: "Content Marketing", desc: "Stories that build trust, drive traffic, and position you as the authority your audience wants to follow.", icon: Target },
+    { num: "05", title: "Website Development", desc: "Fast, responsive, user-centric websites built with modern tech that converts visitors into clients.", icon: ArrowUpRight },
+    { num: "06", title: "App Development", desc: "Intuitive mobile & web apps that bring your product vision to life with clean code and modern UX.", icon: Sparkles },
+  ];
+
+  const TEAM = [
+    { name: "Nikhil Sharma", role: "Founder & CEO", img: "https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=800&auto=format&fit=crop" },
+    { name: "Priya Gupta", role: "Head of Marketing", img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=800&auto=format&fit=crop" },
+    { name: "Rahul Verma", role: "Creative Director", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800&auto=format&fit=crop" },
+  ];
+
+  const STATS = [
+    { value: "150+", label: "Projects Delivered" },
+    { value: "80+", label: "Happy Clients" },
+    { value: "6+", label: "Years Active" },
+    { value: "12+", label: "Industries Served" },
+  ];
+
+  const VALUES = [
+    { emoji: "🎯", title: "Clarity First", desc: "Simple roadmaps, zero guesswork, weekly momentum." },
+    { emoji: "🚀", title: "Always Moving", desc: "Ship → learn → refine. Stagnation isn't in our vocab." },
+    { emoji: "✨", title: "Obsessive Craft", desc: "Every pixel, every word, every metric — polished to perfection." },
+    { emoji: "📈", title: "Real Results", desc: "Revenue and retention over vanity metrics — always." },
+  ];
 
   return (
-    <div className="relative min-h-screen text-white">
-      <NeonBackdrop />
+    <div className="min-h-screen bg-white text-[#0e0e0e] font-sans">
 
-      {/* Optional thin progress bar */}
-      {/* <motion.div style={{ scaleX: bar }} className="fixed left-0 right-0 top-0 h-[3px] origin-left bg-gradient-to-r from-blue-500 via-fuchsia-500 to-cyan-400 z-50" /> */}
+      {/* ═══════════════ HERO ═══════════════ */}
+      <section ref={heroRef} className="relative min-h-screen flex flex-col justify-end bg-[#0b0b0b] overflow-hidden">
+        {/* Parallax BG watermark */}
+        <motion.div style={{ y: bgY }} className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
+          <span className="text-[clamp(120px,22vw,280px)] font-black uppercase leading-none tracking-tighter text-white/[0.03] select-none">
+            BRANDELO
+          </span>
+        </motion.div>
 
-      <main className="relative w-full selection:bg-blue-500/20">
-        {/* ===== HERO ===== */}
-        <section
-          ref={heroRef}
-          className="relative flex flex-col items-center justify-center h-[90vh] text-center"
-          aria-label="About us hero"
-        >
+        {/* Gradient orbs */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-indigo-500/10 blur-[120px]" />
+          <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-emerald-500/10 blur-[100px]" />
+        </div>
+
+        <motion.div style={{ opacity }} className="relative z-10 max-w-7xl mx-auto w-full px-6 lg:px-12 pb-20 pt-32">
+          {/* Eyebrow */}
           <motion.div
-            aria-hidden
-            style={{ opacity: heroFade }}
-            className="absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: EASE }}
+            className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/5 px-4 py-2 backdrop-blur mb-10"
           >
-            <div className="absolute inset-0 blur-2xl opacity-90 bg-[conic-gradient(from_0deg_at_50%_50%,rgba(59,130,246,.28),rgba(168,85,247,.28),rgba(34,211,238,.28),rgba(59,130,246,.28))]" />
-            <div className="absolute inset-0 opacity-15 [background:radial-gradient(circle_at_20%_20%,#fff1_10%,transparent_40%),radial-gradient(circle_at_80%_30%,#fff1_8%,transparent_40%),radial-gradient(circle_at_40%_80%,#fff1_6%,transparent_40%)]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">Agency Beings · Since 2018</span>
           </motion.div>
 
+          {/* Main heading */}
           <motion.h1
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: EASE_OUT }}
-            className="text-5xl md:text-7xl font-extrabold tracking-tight"
+            transition={{ duration: 0.9, ease: EASE, delay: 0.1 }}
+            className="text-[clamp(42px,8vw,100px)] font-black leading-[0.95] tracking-tight text-white max-w-5xl"
           >
-            About{" "}
-            <span className="bg-gradient-to-r from-blue-400 via-fuchsia-400 to-cyan-300 bg-clip-text text-transparent">
-              WDB
+            We make your<br />
+            brand{" "}
+            <span className="bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-emerald-400 bg-clip-text text-transparent italic">
+              impossible
             </span>
+            <br />
+            to ignore.
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.6, ease: EASE_OUT }}
-            className="mt-5 text-lg md:text-xl max-w-2xl text-white/80"
+            transition={{ duration: 0.7, ease: EASE, delay: 0.25 }}
+            className="mt-8 text-lg text-white/45 max-w-xl leading-relaxed"
           >
-            We help brands grow with creativity, strategy, and engineering—turning insight into impact.
+            We craft experiences that captivate, inspire, and leave lasting impressions.
+            Data-driven strategies meet bold creative — ready to shake things up?
           </motion.p>
 
-          {/* Chips */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            {[
-              { icon: <Sparkles size={16} />, text: "Creative-first" },
-              { icon: <ChartLine size={16} />, text: "Performance-driven" },
-              { icon: <Stars size={16} />, text: "Delightful CX" },
-            ].map((b, i) => (
-              <motion.span
-                key={i}
-                initial={prefersReduced ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.96 }}
-                animate={prefersReduced ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
-                transition={{ delay: 0.25 + i * 0.07, duration: 0.4, ease: EASE_OUT }}
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm bg-white/10 ring-1 ring-white/15 backdrop-blur"
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: EASE, delay: 0.38 }}
+            className="mt-10 flex flex-wrap gap-4"
+          >
+            <Link href="/contact" className="group inline-flex items-center gap-2.5 rounded-full bg-white text-[#0e0e0e] text-sm font-bold px-7 py-3.5 hover:bg-white/90 transition-all shadow-lg shadow-white/10">
+              Start a project <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+            </Link>
+            <Link href="/services" className="group inline-flex items-center gap-2.5 rounded-full border border-white/15 text-white text-sm font-semibold px-7 py-3.5 hover:bg-white/8 transition-all backdrop-blur">
+              Our services
+            </Link>
+          </motion.div>
+
+          {/* Scroll hint */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 1 }}
+            className="mt-20 flex items-center gap-3 text-white/25 text-xs uppercase tracking-widest"
+          >
+            <div className="h-8 w-px bg-gradient-to-b from-transparent via-white/30 to-transparent" />
+            Scroll to explore
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* ═══════════════ MARQUEE 1 ═══════════════ */}
+      <Marquee text="Bold Ideas · Big Impact" speed={22} italic />
+
+      {/* ═══════════════ ABOUT SPLIT ═══════════════ */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-12 py-28 lg:py-36">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+          {/* Left — sticky */}
+          <div className="lg:sticky lg:top-28">
+            <motion.div {...fx(0)}>
+              <SectionLabel>About Brandelo</SectionLabel>
+            </motion.div>
+            <motion.h2 {...fx(0.06)} className="text-[clamp(36px,5vw,60px)] font-black leading-[1.0] tracking-tight">
+              We build brands<br />that lead the<br />
+              <span className="italic text-black/35">market.</span>
+            </motion.h2>
+
+            {/* Stats */}
+            <motion.div {...fx(0.14)} className="mt-12 grid grid-cols-2 gap-6">
+              {STATS.map((s) => (
+                <div key={s.label} className="border-t-2 border-black/8 pt-4">
+                  <p className="text-[clamp(32px,4vw,48px)] font-black leading-none text-[#0e0e0e]">{s.value}</p>
+                  <p className="mt-1.5 text-xs font-semibold uppercase tracking-widest text-black/35">{s.label}</p>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Right — copy */}
+          <div className="flex flex-col gap-7 pt-2 lg:pt-16">
+            <motion.p {...fx(0.1)} className="text-xl text-black/70 leading-[1.75]">
+              Brandelo is a performance-focused digital marketing and creative growth studio. We specialise in SEO, Google &amp; Meta Ads, social media marketing, branding, and modern web development — helping businesses grow <span className="font-bold text-[#0e0e0e]">revenue, traffic, and conversions</span> with data-driven strategies.
+            </motion.p>
+            <motion.p {...fx(0.15)} className="text-lg text-black/55 leading-relaxed">
+              We work closely with visionary leaders and forward-thinking companies, helping them navigate the complexities of the digital world. From crafting compelling brand identities to executing cutting-edge marketing strategies, our team is dedicated to your success.
+            </motion.p>
+            <motion.div {...fx(0.2)} className="pt-2">
+              <Link href="/contact" className="group inline-flex items-center gap-2 rounded-full bg-[#0e0e0e] text-white text-sm font-bold px-7 py-3.5 hover:bg-black/80 transition-all">
+                Chat with an expert <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ LEADERSHIP ═══════════════ */}
+      <section className="bg-[#F7F7F7] py-24 lg:py-32">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="mb-16 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div>
+              <motion.div {...fx(0)}><SectionLabel>Leadership</SectionLabel></motion.div>
+              <motion.h2 {...fx(0.06)} className="text-[clamp(32px,5vw,56px)] font-black leading-tight tracking-tight max-w-lg">
+                Meet the masterminds crafting the future.
+              </motion.h2>
+            </div>
+            <motion.p {...fx(0.1)} className="text-base text-black/50 max-w-xs leading-relaxed">
+              A team of strategists, creators, and engineers obsessed with making brands grow.
+            </motion.p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {TEAM.map((m, i) => (
+              <motion.div
+                key={m.name}
+                {...fx(i * 0.08)}
+                whileHover={{ y: -8 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                className="group"
               >
-                {b.icon}
-                {b.text}
-              </motion.span>
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl bg-[#e8e8e8] mb-5 shadow-sm">
+                  <Image src={m.img} alt={m.name} fill className="object-cover object-top transition-transform duration-700 group-hover:scale-105" unoptimized />
+                  {/* gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                  <div className="absolute bottom-5 left-5 right-5">
+                    <p className="font-bold text-white text-lg leading-tight">{m.name}</p>
+                    <p className="text-white/65 text-sm">{m.role}</p>
+                  </div>
+                </div>
+              </motion.div>
             ))}
           </div>
+        </div>
+      </section>
 
-          <div className="absolute bottom-0 left-0 right-0 h-20 [mask-image:linear-gradient(to_bottom,transparent,black)] bg-gradient-to-b from-transparent to-black/40" />
-        </section>
+      {/* ═══════════════ MARQUEE 2 ═══════════════ */}
+      <Marquee text="The Overachievers" speed={18} dark />
 
-        {/* ===== SOCIAL PROOF ===== */}
-        <section className="py-10 bg-white/5 ring-1 ring-white/10 backdrop-blur">
-          <div className="max-w-6xl mx-auto px-6">
-            <p className="text-center text-xs md:text-sm uppercase tracking-[0.2em] text-white/70">
-              Trusted by teams at
-            </p>
-            <div className="relative overflow-hidden mt-6">
+      {/* ═══════════════ CULTURE ═══════════════ */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-12 py-28 lg:py-36">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+          <div>
+            <motion.div {...fx(0)}><SectionLabel>Our Culture</SectionLabel></motion.div>
+            <motion.h2 {...fx(0.06)} className="text-[clamp(32px,5vw,56px)] font-black leading-[1.05] tracking-tight mb-6">
+              We don&apos;t settle for &ldquo;good&rdquo;, and neither should you.
+            </motion.h2>
+            <motion.p {...fx(0.12)} className="text-lg text-black/55 leading-relaxed mb-8 max-w-md">
+              We&apos;re a little bit rebellious and a whole lot ambitious. We take on challenges like we&apos;ve got something to prove — because we do. We don&apos;t stop until your brand is the talk of the town, and maybe even the internet.
+            </motion.p>
+            <motion.div {...fx(0.16)}>
+              <Link href="/contact" className="group inline-flex items-center gap-2 rounded-full bg-[#0e0e0e] text-white text-sm font-bold px-7 py-3.5 hover:bg-black/80 transition-all">
+                Join the journey <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </motion.div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            {VALUES.map((v, i) => (
               <motion.div
-                className="flex gap-10 items-center"
-                animate={{ x: ["0%", "-50%"] }}
-                transition={{ duration: 18, ease: LINEAR, repeat: Infinity }}
+                key={v.title}
+                {...fx(i * 0.07)}
+                whileHover={{ y: -5, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 220, damping: 22 }}
+                className={`rounded-2xl p-6 flex flex-col gap-3 ${i === 0 ? "bg-[#0e0e0e] text-white" : "bg-[#F4F4F5]"}`}
               >
-                {[...LOGOS, ...LOGOS].map((src, i) => (
-                  <div key={i} className="relative h-10 w-44 opacity-90">
-                    <Image src={src} alt="" fill className="object-cover rounded-md" unoptimized />
-                  </div>
-                ))}
+                <span className="text-3xl">{v.emoji}</span>
+                <p className={`font-black text-base ${i === 0 ? "text-white" : "text-[#0e0e0e]"}`}>{v.title}</p>
+                <p className={`text-sm leading-relaxed ${i === 0 ? "text-white/55" : "text-black/50"}`}>{v.desc}</p>
               </motion.div>
-            </div>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ===== MISSION & VISION ===== */}
-        <section className="py-20">
-          <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-3 gap-8">
-            <motion.div {...fx()} className="rounded-2xl p-6 ring-1 ring-white/15 bg-white/10 backdrop-blur">
-              <h3 className="text-xl font-semibold">Our Mission</h3>
-              <p className="mt-2 text-white/80">
-                Build compound growth engines for ambitious brands—where creativity, data, and code work as one.
-              </p>
-            </motion.div>
-            <motion.div {...fx(0.05)} className="rounded-2xl p-6 ring-1 ring-white/15 bg-white/10 backdrop-blur">
-              <h3 className="text-xl font-semibold">Our Vision</h3>
-              <p className="mt-2 text-white/80">
-                A world where digital feels effortless: fast sites, useful content, respectful ads, joyful experiences.
-              </p>
-            </motion.div>
-            <motion.div {...fx(0.1)} className="rounded-2xl p-6 ring-1 ring-white/15 bg-white/10 backdrop-blur">
-              <h3 className="text-xl font-semibold">What We Do</h3>
-              <p className="mt-2 text-white/80">
-                Strategy • SEO • Paid Ads • Social • Web Dev • Analytics—bundled into clear roadmaps and weekly momentum.
-              </p>
-            </motion.div>
+      {/* ═══════════════ MARQUEE 3 ═══════════════ */}
+      <Marquee text="Marketing is our Jam" speed={20} italic />
+
+      {/* ═══════════════ SERVICES ═══════════════ */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-12 py-28 lg:py-36">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16">
+          <div>
+            <motion.div {...fx(0)}><SectionLabel>What we do</SectionLabel></motion.div>
+            <motion.h2 {...fx(0.06)} className="text-[clamp(32px,5vw,56px)] font-black leading-tight tracking-tight max-w-lg">
+              Full-stack growth services for ambitious brands.
+            </motion.h2>
           </div>
-        </section>
+          <motion.div {...fx(0.1)}>
+            <Link href="/services" className="group inline-flex items-center gap-2 rounded-full border border-black/15 text-[#0e0e0e] text-sm font-semibold px-6 py-3 hover:bg-black/5 transition-all">
+              View all services <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          </motion.div>
+        </div>
 
-        {/* ===== JOURNEY / TIMELINE ===== */}
-        <section className="py-20">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="sticky top-16 z-10 mb-10 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm ring-1 ring-white/15 backdrop-blur">
-              <Rocket size={16} />
-              Our Journey
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-black/8 rounded-2xl overflow-hidden">
+          {SERVICES.map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <motion.div
+                key={s.num}
+                {...fx(i * 0.05)}
+                whileHover={{ backgroundColor: "#f7f7f7" }}
+                className="group bg-white p-8 flex flex-col gap-5 cursor-default transition-colors duration-200"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-black/25 tracking-widest">{s.num}</span>
+                  <Icon className="h-4 w-4 text-black/20 group-hover:text-black/50 transition-colors" />
+                </div>
+                <div>
+                  <h3 className="font-black text-lg text-[#0e0e0e] mb-2 leading-tight group-hover:underline underline-offset-2 decoration-black/20">{s.title}</h3>
+                  <p className="text-sm text-black/50 leading-relaxed">{s.desc}</p>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ═══════════════ BOTTOM CTA ═══════════════ */}
+      <section className="relative bg-[#0b0b0b] overflow-hidden">
+        {/* orbs */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute top-0 left-1/3 w-[600px] h-[400px] rounded-full bg-indigo-600/12 blur-[130px]" />
+          <div className="absolute bottom-0 right-1/3 w-[500px] h-[300px] rounded-full bg-emerald-600/12 blur-[110px]" />
+        </div>
+
+        <div className="relative z-10 max-w-5xl mx-auto text-center px-6 lg:px-12 py-28 lg:py-36">
+          <motion.div {...fx(0)} className="flex justify-center mb-8">
+            <div className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/5 px-4 py-2 backdrop-blur">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Currently accepting new clients</span>
             </div>
+          </motion.div>
 
-            <div className="grid md:grid-cols-4 gap-8">
-              {yearCards.map((item, idx) => (
-                <motion.article
-                  key={idx}
-                  {...fx(idx * 0.05)}
-                  className="group relative overflow-hidden rounded-2xl bg-white/10 ring-1 ring-white/15 backdrop-blur"
-                >
-                  <div className="relative p-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-2xl font-semibold">{item.year}</h3>
-                      <span className="text-xs px-2 py-1 rounded-full bg-white/10 ring-1 ring-white/15">Milestone {idx + 1}</span>
-                    </div>
-                    <p className="mt-2 text-white/80">{item.text}</p>
-                    <div className="mt-6 h-1 w-0 bg-gradient-to-r from-blue-400 via-fuchsia-400 to-cyan-300 transition-all duration-300 group-hover:w-24" />
-                  </div>
-                </motion.article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ===== PRINCIPLES / VALUES ===== */}
-        <section className="py-20">
-          <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <motion.h2 {...fx()} className="text-3xl md:text-4xl font-bold">Principles we work by</motion.h2>
-              <motion.p {...fx(0.08)} className="mt-3 text-white/80">
-                Clear goals, candid feedback, and measurable outcomes—wrapped in craft.
-              </motion.p>
-
-              <div className="mt-8 grid sm:grid-cols-2 gap-4">
-                {[
-                  { icon: <Target size={16} />, title: "Clarity", desc: "Simple plans, weekly progress, zero guesswork." },
-                  { icon: <ChartLine size={16} />, title: "Impact", desc: "We optimize for business metrics, not vanity KPIs." },
-                  { icon: <Sparkles size={16} />, title: "Craft", desc: "Polish the details; design that respects attention." },
-                  { icon: <Rocket size={16} />, title: "Momentum", desc: "Ship → learn → refine. Always moving forward." },
-                ].map((v, i) => (
-                  <motion.div
-                    key={i}
-                    {...fx(0.05 * i)}
-                    className="rounded-2xl bg-white/10 ring-1 ring-white/15 p-4 backdrop-blur"
-                  >
-                    <div className="flex items-center gap-2 font-medium">{v.icon}{v.title}</div>
-                    <p className="mt-1 text-sm text-white/80">{v.desc}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* culture card */}
-            <motion.div
-              {...fx(0.1)}
-              className="rounded-2xl h-64 lg:h-80 ring-1 ring-white/15 bg-white/10 backdrop-blur grid place-items-center text-center px-8"
-            >
-              <p className="text-white/80">
-                We’re a remote-first team across time zones. Deep work, friendly async, and demos over decks.
-                <br />
-                <span className="inline-flex items-center gap-2 mt-3 text-sm text-white/70">
-                  <Handshake size={16} /> Collaboration • <Globe2 size={16} /> Remote • <Heart size={16} /> Kindness
-                </span>
-              </p>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* ===== TEAM ===== */}
-        <section className="py-20">
-          <div className="max-w-6xl mx-auto px=6 md:px-6 px-6">
-            <div className="sticky top-16 z-10 mb-10 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm ring-1 ring-white/15 backdrop-blur">
-              <Stars size={16} />
-              Meet Our Team
-            </div>
-
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
-              {TEAM.map((m, idx) => (
-                <motion.article
-                  key={idx}
-                  {...fx(idx * 0.05)}
-                  whileHover={{ y: -4 }}
-                  transition={{ type: "spring", stiffness: 140, damping: 16 }}
-                  className="group relative overflow-hidden rounded-2xl ring-1 ring-white/15 bg-white/10 backdrop-blur"
-                >
-                  <div className="relative w-full h-60">
-                    <Image src={m.img} alt={m.name} fill className="object-cover" unoptimized />
-                  </div>
-                  <div className="p-5">
-                    <h3 className="text-xl font-semibold">{m.name}</h3>
-                    <p className="text-white/70">{m.role}</p>
-                  </div>
-                </motion.article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ===== EXPERIENCE / METRICS ===== */}
-        <section className="py-20">
-          <div className="max-w-6xl mx-auto px-6 text-center">
-            <motion.h2 {...fx()} className="text-3xl md:text-4xl font-bold">Our Experience</motion.h2>
-            <div className="grid md:grid-cols-3 gap-6 mt-12">
-              {[
-                { title: "100+", desc: "Projects Completed" },
-                { title: "50+", desc: "Global Clients" },
-                { title: "5+", desc: "Years of Experience" },
-              ].map((exp, idx) => (
-                <motion.div
-                  key={idx}
-                  {...fx(0.05 * idx)}
-                  className="relative p-8 rounded-2xl bg-white/10 ring-1 ring-white/15 shadow-sm backdrop-blur"
-                >
-                  <h3 className="text-5xl font-extrabold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
-                    {exp.title}
-                  </h3>
-                  <p className="mt-2 text-white/80">{exp.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ===== AWARDS / PRESS ===== */}
-        <section className="py-16">
-          <div className="max-w-6xl mx-auto px-6">
-            <motion.h2 {...fx()} className="text-2xl md:text-3xl font-bold text-center">Recognition</motion.h2>
-            <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                "Top Performance Agency ‘23",
-                "Best Web Experience ‘24",
-                "Design for Growth ‘24",
-                "Innovators to Watch ‘25",
-              ].map((a, i) => (
-                <motion.div key={a} {...fx(i * 0.05)} className="rounded-2xl p-4 bg-white/10 ring-1 ring-white/15 backdrop-blur flex items-center gap-3">
-                  <Trophy className="flex-none" size={18} />
-                  <span className="text-sm">{a}</span>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ===== TESTIMONIALS ===== */}
-
-        {/* <TestimonialSection/> */}
-
-        {/* ===== FAQ ===== */}
-        <FAQSectionWDB />
-
-        {/* ===== CTA ===== */}
-        <section className="py-20 text-center relative">
-          <motion.h2 {...fx()} className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Grow Your Business?
+          <motion.h2 {...fx(0.08)} className="text-[clamp(38px,7vw,80px)] font-black text-white leading-[0.98] tracking-tight mb-8">
+            Join Brandelo and let&apos;s<br />
+            <span className="bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-emerald-400 bg-clip-text text-transparent italic">
+              break all the rules.
+            </span>
           </motion.h2>
-          <a
-            href="/contact"
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-full font-semibold bg-gradient-to-r from-blue-600 via-fuchsia-600 to-cyan-500 text-white shadow-lg ring-1 ring-white/10 hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-blue-400 transition"
-          >
-            Get in Touch <ArrowRight size={18} />
-          </a>
-          <p className="mt-3 text-sm text-white/70">We’ll reply within 1 business day.</p>
-        </section>
-      </main>
+
+          <motion.p {...fx(0.14)} className="text-lg text-white/40 max-w-md mx-auto leading-relaxed mb-12">
+            Ready to build something extraordinary? We&apos;re here, caffeinated, and waiting for your brief.
+          </motion.p>
+
+          <motion.div {...fx(0.18)} className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/contact" className="group inline-flex items-center gap-2.5 rounded-full bg-white text-[#0e0e0e] text-sm font-bold px-8 py-4 hover:bg-white/90 transition-all shadow-lg shadow-white/10">
+              Start a project <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link href="/services" className="inline-flex items-center gap-2 rounded-full border border-white/15 text-white text-sm font-semibold px-8 py-4 hover:bg-white/8 transition-all">
+              Explore services
+            </Link>
+          </motion.div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,434 +1,301 @@
 "use client";
 
-import React from "react";
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
-  PenTool,
-  Palette,
-  Layout,
-  Image as ImageIcon,
-  Layers,
-  BadgeCheck,
-  Sparkles,
-  ArrowRight,
-  Rocket,
-  Tag,
+  PenTool, Palette, Layout, Layers, BadgeCheck,
+  Sparkles, ArrowRight, ChevronRight, Plus, Minus,
+  MousePointerClick, Eye, Figma,
 } from "lucide-react";
 
-/**
- * app/services/design/page.tsx
- * — Always-dark neon theme
- * — Full-bleed smooth backdrop (no grid/check pattern)
- * — Glassy surfaces + FM v11 tuple easings
- */
-
-/* ---------- Easing (tuples) ---------- */
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];      // ~easeOut
-const EASE_INOUT: [number, number, number, number] = [0.42, 0, 0.58, 1]; // ~easeInOut
-
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const fadeUp = (d = 0) => ({
-  initial: { opacity: 0, y: 28 },
+  initial: { opacity: 0, y: 32 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.3 },
-  transition: { duration: 0.7, delay: d, ease: EASE },
+  viewport: { once: true },
+  transition: { duration: 0.65, delay: d, ease: EASE },
 });
 
-/* ---------- Content ---------- */
 const SERVICES = [
   {
     icon: PenTool,
     title: "Brand Identity",
-    blurb:
-      "Strategy-led logos, typography, and visual language that make your brand unmistakable and memorable.",
-    bullets: ["Logo + marks", "Tone & voice", "Brand guidelines"],
+    desc: "Strategy-led logos, typography, and visual language that make your brand unmistakable — from first impression to lasting recall.",
+    bullets: ["Logo + mark system", "Color & typography", "Brand guidelines doc"],
+    accent: "from-pink-500/20 to-pink-500/0",
+    iconColor: "text-pink-400",
+    border: "hover:border-pink-500/40",
   },
   {
     icon: Layout,
     title: "UI/UX Design",
-    blurb:
-      "Human-centered interfaces that are simple, accessible, and conversion-focused across web & mobile.",
-    bullets: ["User flows", "Wireframes", "Hi-fi prototypes"],
+    desc: "Human-centered interfaces that are simple, accessible, and conversion-focused across web & mobile platforms.",
+    bullets: ["User flows & wireframes", "Hi-fi Figma prototypes", "Usability testing"],
+    accent: "from-violet-500/20 to-violet-500/0",
+    iconColor: "text-violet-400",
+    border: "hover:border-violet-500/40",
   },
   {
-    icon: ImageIcon,
+    icon: Eye,
     title: "Web Design",
-    blurb:
-      "Marketing sites and landing pages with crisp art direction, motion, and on-brand components.",
+    desc: "Marketing sites and landing pages with crisp art direction, purposeful motion, and on-brand components that convert.",
     bullets: ["Hero art direction", "Micro-interactions", "Responsive layouts"],
+    accent: "from-cyan-500/20 to-cyan-500/0",
+    iconColor: "text-cyan-400",
+    border: "hover:border-cyan-500/40",
   },
   {
     icon: Layers,
     title: "Design Systems",
-    blurb:
-      "Token-driven systems, components, and documentation that keep teams moving fast and on-brand.",
-    bullets: ["Design tokens", "Component library", "Usage docs"],
+    desc: "Token-driven systems, component libraries, and documentation that keep teams moving fast and perfectly on-brand.",
+    bullets: ["Design tokens", "Component library", "Usage guidelines"],
+    accent: "from-emerald-500/20 to-emerald-500/0",
+    iconColor: "text-emerald-400",
+    border: "hover:border-emerald-500/40",
   },
-] as const;
+];
 
-const STEPS = [
-  { icon: Sparkles, title: "Discover", desc: "Audience, positioning, and success metrics." },
-  { icon: PenTool, title: "Define", desc: "Brand pillars, IA, and UX principles." },
-  { icon: Layout, title: "Wireframe", desc: "Flows, IA, and rapid low-fi mapping." },
-  { icon: Palette, title: "Design", desc: "Hi-fi visuals, motion, and prototypes." },
-  { icon: BadgeCheck, title: "Handoff", desc: "Specs, tokens, and component documentation." },
-] as const;
+const PROCESS = [
+  { num: "01", icon: Sparkles, title: "Discover", desc: "Deep dive into your audience, goals, competitors, and brand positioning to build a clear north star." },
+  { num: "02", icon: PenTool, title: "Define", desc: "Establish brand pillars, information architecture, and UX principles that guide every decision." },
+  { num: "03", icon: MousePointerClick, title: "Wireframe", desc: "Rapid low-fidelity flows and layout exploration to lock structure before visual design begins." },
+  { num: "04", icon: Palette, title: "Design", desc: "Hi-fidelity visuals, motion specs, and interactive prototypes in Figma — pixel-perfect and on-brand." },
+  { num: "05", icon: Figma, title: "Handoff", desc: "Clean specs, tokens, assets, and component documentation ready for engineering to build fast." },
+];
 
-const KPIS = [
-  { label: "Design Velocity", value: 3.2, suffix: "×" },
-  { label: "Time-to-Ship", value: 42, suffix: "%" },
-  { label: "Usability Gains", value: 2.1, suffix: "×" },
-  { label: "Consistency", value: 95, suffix: "%" },
-] as const;
+const RESULTS = [
+  { tag: "Branding", metric: "+2.4×", label: "Brand recall after rebrand", color: "text-pink-400" },
+  { tag: "SaaS UI", metric: "−37%", label: "Task completion time after IA overhaul", color: "text-violet-400" },
+  { tag: "E-com UX", metric: "+18%", label: "Checkout conversion rate improvement", color: "text-cyan-400" },
+];
 
-const CASES = [
-  {
-    tag: "Branding",
-    title: "Rebrand lifted recall by 2.4×",
-    metric: "+2.4× recall",
-    icon: Palette,
-  },
-  { tag: "SaaS UI", title: "Simplified IA cut task time 37%", metric: "-37% task time", icon: Layout },
-  { tag: "E-com UX", title: "Checkout polish raised CR 18%", metric: "+18% CVR", icon: Layers },
-] as const;
+const FAQS = [
+  { q: "How long does a brand identity project take?", a: "A full brand identity — logo, guidelines, and assets — typically takes 3–5 weeks. We move fast but take quality seriously. Complex systems or multi-brand projects can take longer." },
+  { q: "Do you do Figma or Adobe work?", a: "All our UI/UX work is done in Figma with structured components, auto-layout, and design tokens. We can also deliver Adobe XD or Sketch if required." },
+  { q: "Can you redesign an existing brand?", a: "Yes. Rebrands are one of our specialties. We do a brand audit first, then evolve or fully reinvent depending on your goals and existing equity." },
+  { q: "What do you need from us to start?", a: "Brand brief or discovery questionnaire, existing assets (if any), examples of brands you admire, and access to a key decision-maker for quick feedback cycles." },
+];
 
-/* ---------- Page ---------- */
 export default function DesignPage() {
-  return (
-    <div className="relative min-h-screen text-white">
-      <NeonBackdrop /> {/* full-bleed, fixed; no side gutters, no grid */}
-      <main className="relative overflow-hidden">
-        <Aurora />
-
-        <Hero />
-
-        {/* Services */}
-        <section id="services" className="relative">
-          <div className="mx-auto max-w-7xl px-6 py-10 md:py-16">
-            <motion.h2 {...fadeUp(0)} className="text-2xl md:text-4xl font-semibold">
-              What we design
-            </motion.h2>
-            <motion.p {...fadeUp(0.05)} className="mt-2 max-w-2xl text-white/80">
-              Beautiful meets useful. Systems, not screenshots—so every pixel pushes outcomes.
-            </motion.p>
-
-            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {SERVICES.map((s, i) => (
-                <ServiceCard key={s.title} {...s} index={i} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Process timeline */}
-        <section className="relative">
-          <div className="mx-auto max-w-7xl px-6 py-10 md:py-16">
-            <motion.h2 {...fadeUp(0)} className="text-2xl md:text-4xl font-semibold">
-              How we craft
-            </motion.h2>
-            <motion.p {...fadeUp(0.05)} className="mt-2 max-w-2xl text-white/80">
-              From discovery to handoff, a calm, repeatable cadence.
-            </motion.p>
-
-            <ol className="mt-10 grid gap-5 md:grid-cols-5">
-              {STEPS.map((st, i) => (
-                <motion.li key={st.title} {...fadeUp(i * 0.05)} className="glassy-card group relative rounded-2xl p-5">
-                  <div className="flex items-center gap-3">
-                    <span className="rounded-xl border border-white/15 bg-white/10 p-2 backdrop-blur">
-                      <st.icon className="h-5 w-5" />
-                    </span>
-                    <p className="font-medium">{st.title}</p>
-                  </div>
-                  <p className="mt-3 text-sm leading-relaxed text-white/80">{st.desc}</p>
-                  <div className="absolute -right-2 -top-2 hidden h-8 w-8 rotate-6 rounded-full bg-gradient-to-tr from-fuchsia-400/40 to-emerald-400/40 blur-sm md:block" />
-                </motion.li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        {/* Case highlights */}
-        <section className="relative">
-          <div className="mx-auto max-w-7xl px-6 py-10 md:py-16">
-            <motion.h2 {...fadeUp(0)} className="text-2xl md:text-4xl font-semibold">
-              Recent outcomes
-            </motion.h2>
-            <div className="mt-8 grid gap-5 md:grid-cols-3">
-              {CASES.map((c, i) => (
-                <motion.div key={c.title} {...fadeUp(0.05 * i)} className="glassy-card relative rounded-2xl p-6">
-                  <span className="inline-flex items-center gap-2 text-xs font-medium text-white/80">
-                    <Tag className="h-3.5 w-3.5" />
-                    {c.tag}
-                  </span>
-                  <div className="mt-3 flex items-start gap-3">
-                    <div className="rounded-xl border border-white/15 bg-white/10 p-2 backdrop-blur">
-                      <c.icon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-base font-medium">{c.title}</p>
-                      <p className="mt-1 text-sm text-emerald-300">{c.metric}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Contact CTA */}
-        <section id="contact" className="relative">
-          <div className="mx-auto max-w-7xl px-6 py-14 md:py-20">
-            <motion.div {...fadeUp(0)} className="glassy-card relative overflow-hidden rounded-3xl p-8 md:p-12">
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(16,185,129,.18),transparent_35%),radial-gradient(circle_at_80%_30%,rgba(99,102,241,.18),transparent_35%),radial-gradient(circle_at_50%_80%,rgba(236,72,153,.18),transparent_35%)]" />
-              <div className="relative z-10 grid items-center gap-6 md:grid-cols-[1.2fr_.8fr]">
-                <div>
-                  <h3 className="text-balance text-2xl md:text-4xl font-semibold">
-                    Ready to elevate your brand?
-                  </h3>
-                  <p className="mt-2 max-w-xl text-white/80">
-                    Book a 30-min design consult. We’ll audit your UI and shape a focused plan.
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-                  <Link
-                    href="/contact"
-                    className="group inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-white backdrop-blur transition hover:-translate-y-0.5"
-                  >
-                    <span className="relative overflow-hidden">
-                      <span className="relative z-10">Book a session</span>
-                      <span className="absolute inset-0 -translate-x-full bg-[linear-gradient(115deg,transparent_0%,transparent_45%,rgba(255,255,255,.7)_55%,transparent_65%,transparent_100%)] bg-[length:250%_100%] transition-transform group-hover:translate-x-0" />
-                    </span>
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
-                  <Link
-                    href="#services"
-                    className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-white/90 backdrop-blur hover:-translate-y-0.5"
-                  >
-                    View packages
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Sticky CTA footer */}
-        <div className="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-4">
-          <div className="pointer-events-auto glassy-card flex items-center gap-3 rounded-2xl px-4 py-3 shadow-xl">
-            <Rocket className="h-4 w-4" />
-            <span className="text-sm">Free 10-point UI/UX review</span>
-            <Link
-              href="/contact"
-              className="ml-1 inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-1.5 text-xs hover:-translate-y-0.5"
-            >
-              Talk to design
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Tiny style helpers — dark baseline */}
-        <style>{`
-          .glassy-card {
-            background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
-            border: 1px solid rgba(255,255,255,.15);
-            backdrop-filter: blur(12px);
-          }
-        `}</style>
-      </main>
-    </div>
-  );
-}
-
-/* ---------- Hero ---------- */
-
-function Hero() {
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const rx = useSpring(useTransform(my, [0, 1], [-8, 8]), { stiffness: 120, damping: 20 });
-  const ry = useSpring(useTransform(mx, [0, 1], [8, -8]), { stiffness: 120, damping: 20 });
-
-  const onMouseMove = (e: React.MouseEvent) => {
-    const b = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    mx.set((e.clientX - b.left) / b.width);
-    my.set((e.clientY - b.top) / b.height);
-  };
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <section className="relative" onMouseMove={onMouseMove}>
-      <div className="mx-auto max-w-7xl px-6 pt-24 pb-8 md:pt-32">
-        <motion.div
-          {...fadeUp(0)}
-          className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm text-white/90 backdrop-blur"
-        >
-          <Sparkles className="h-4 w-4" />
-          <span>Design that performs</span>
+    <div className="min-h-screen bg-[#080c18] text-white">
+
+      {/* ── Background ── */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-[#080c18]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(216,80,236,0.18),transparent)]" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[400px] rounded-full bg-pink-600/8 blur-[120px]" />
+        <div className="absolute top-1/2 right-0 w-[400px] h-[400px] rounded-full bg-violet-600/8 blur-[100px]" />
+      </div>
+
+      {/* ── Hero ── */}
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-28 pb-20">
+        {/* Breadcrumb */}
+        <motion.div {...fadeUp(0)} className="flex items-center gap-2 text-xs text-white/35 font-medium mb-8">
+          <Link href="/services" className="hover:text-white/60 transition-colors">Services</Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="text-white/60">Design</span>
+        </motion.div>
+
+        <motion.div {...fadeUp(0.04)} className="inline-flex items-center gap-2.5 rounded-full border border-pink-500/25 bg-pink-500/10 px-4 py-2 backdrop-blur mb-8">
+          <Palette className="h-3.5 w-3.5 text-pink-400" />
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-pink-300/80">Design Services</span>
         </motion.div>
 
         <motion.h1
-          {...fadeUp(0.1)}
-          className="mt-6 text-balance text-4xl md:text-6xl font-semibold leading-tight tracking-tight"
+          {...fadeUp(0.08)}
+          className="text-[clamp(38px,6.5vw,84px)] font-black leading-[0.92] tracking-tight max-w-5xl"
         >
-          Interfaces that{" "}
-          <span className="relative inline-block">
-            <motion.span style={{ rotateX: rx as any, rotateY: ry as any }} className="inline-block will-change-transform">
-              feel beautiful and ship fast
-            </motion.span>
-            <span className="pointer-events-none absolute inset-x-0 bottom-1 h-2 bg-gradient-to-r from-fuchsia-400/30 via-emerald-400/30 to-indigo-400/30 blur" />
-          </span>
+          Brands & interfaces that{" "}
+          <span className="bg-gradient-to-r from-pink-400 via-fuchsia-400 to-violet-500 bg-clip-text text-transparent italic">
+            feel beautiful
+          </span>{" "}
+          and perform.
         </motion.h1>
 
-        <motion.p {...fadeUp(0.2)} className="mt-5 max-w-2xl text-pretty text-lg md:text-xl text-white/80">
-          We blend brand, UX, and motion to craft experiences that delight users and drive results.
+        <motion.p {...fadeUp(0.14)} className="mt-6 text-lg text-white/50 max-w-2xl leading-relaxed">
+          We blend brand strategy, UX thinking, and visual craft to create design systems, interfaces, and identities that delight users and drive real business results.
         </motion.p>
 
-        <motion.div {...fadeUp(0.3)} className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+        <motion.div {...fadeUp(0.2)} className="mt-10 flex flex-wrap gap-3">
           <Link
-            href="#contact"
-            className="group inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-white backdrop-blur transition hover:-translate-y-0.5"
+            href="/contact"
+            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white text-sm font-bold shadow-[0_0_30px_rgba(236,72,153,0.4)] hover:shadow-[0_0_40px_rgba(236,72,153,0.55)] hover:-translate-y-0.5 transition-all duration-200"
           >
-            <span className="relative overflow-hidden">
-              <span className="relative z-10">Start a design sprint</span>
-              <span className="absolute inset-0 -translate-x-full bg-[linear-gradient(115deg,transparent_0%,transparent_40%,rgba(255,255,255,.6)_50%,transparent_60%,transparent_100%)] bg-[length:250%_100%] transition-transform group-hover:translate-x-0" />
-            </span>
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            Start a design sprint <ArrowRight className="h-4 w-4" />
           </Link>
-
           <Link
             href="#services"
-            className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-white/90 backdrop-blur transition hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-white/15 text-white/80 text-sm font-semibold hover:bg-white/8 hover:-translate-y-0.5 transition-all duration-200"
           >
             Explore services
           </Link>
         </motion.div>
-      </div>
 
-      {/* KPI strip */}
-      <div className="mx-auto max-w-7xl px-6 pb-14">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {KPIS.map(({ label, value, suffix }, i) => (
-            <motion.div key={label} {...fadeUp(0.05 * i)} className="glassy-card rounded-2xl p-4 text-center">
-              <AnimatedCounter to={value} suffix={suffix} />
-              <p className="mt-1 text-sm text-white/70">{label}</p>
+        {/* Stats */}
+        <motion.div {...fadeUp(0.26)} className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            { val: "150+", label: "Brands Designed" },
+            { val: "3.2×", label: "Design Velocity" },
+            { val: "−37%", label: "Task Time" },
+            { val: "95%", label: "Consistency Score" },
+          ].map((s) => (
+            <div key={s.label} className="rounded-2xl border border-white/8 bg-white/[0.04] p-5 text-center backdrop-blur">
+              <div className="text-2xl sm:text-3xl font-black tracking-tight text-white">{s.val}</div>
+              <div className="text-xs text-white/40 font-medium mt-1">{s.label}</div>
+            </div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* ── Services Grid ── */}
+      <section id="services" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-16 sm:py-24">
+        <motion.div {...fadeUp(0)} className="mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 text-white/40 text-xs font-semibold uppercase tracking-widest mb-4">What We Design</div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
+            Our design <span className="text-pink-400">services.</span>
+          </h2>
+        </motion.div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          {SERVICES.map((s, i) => (
+            <motion.article
+              key={s.title}
+              {...fadeUp(i * 0.07)}
+              className={`relative group rounded-3xl border border-white/8 bg-white/[0.04] p-7 sm:p-8 backdrop-blur transition-all duration-300 hover:bg-white/[0.07] ${s.border} overflow-hidden`}
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${s.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+              <div className="relative z-10">
+                <div className="flex items-start justify-between mb-5">
+                  <div className={`p-3 rounded-2xl bg-white/8 border border-white/10 ${s.iconColor}`}>
+                    <s.icon className="h-6 w-6" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold tracking-tight mb-2">{s.title}</h3>
+                <p className="text-sm text-white/55 leading-relaxed mb-5">{s.desc}</p>
+                <ul className="space-y-2 mb-6">
+                  {s.bullets.map((b) => (
+                    <li key={b} className="flex items-center gap-2.5 text-sm text-white/70">
+                      <BadgeCheck className={`h-4 w-4 flex-shrink-0 ${s.iconColor}`} />
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/contact" className="inline-flex items-center gap-1.5 text-sm font-semibold text-white/40 group-hover:text-white/80 transition-colors">
+                  Get started <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              </div>
+            </motion.article>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Process ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-16 sm:py-24 border-t border-white/[0.06]">
+        <motion.div {...fadeUp(0)} className="mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 text-white/40 text-xs font-semibold uppercase tracking-widest mb-4">Our Process</div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
+            How we <span className="text-fuchsia-400">craft.</span>
+          </h2>
+          <p className="mt-3 text-white/50 max-w-xl">From discovery to pixel-perfect handoff — a calm, repeatable design cadence.</p>
+        </motion.div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {PROCESS.map((step, i) => (
+            <motion.div key={step.num} {...fadeUp(i * 0.06)} className="relative rounded-2xl border border-white/8 bg-white/[0.04] p-6 backdrop-blur">
+              <div className="text-4xl font-black text-white/8 mb-3 leading-none">{step.num}</div>
+              <step.icon className="h-5 w-5 text-fuchsia-400 mb-3" />
+              <h3 className="font-bold text-white mb-2">{step.title}</h3>
+              <p className="text-xs text-white/45 leading-relaxed">{step.desc}</p>
             </motion.div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Floating orbs reacting to cursor */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -left-10 top-10 h-32 w-32 rounded-full bg-gradient-to-tr from-emerald-400/25 to-cyan-400/25 blur-2xl"
-        style={{ x: useTransform(mx, (v) => (v - 0.5) * 40), y: useTransform(my, (v) => (v - 0.5) * 40) }}
-      />
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute right-6 top-24 h-24 w-24 rounded-full bg-gradient-to-tr from-fuchsia-400/25 to-indigo-400/25 blur-2xl"
-        style={{ x: useTransform(mx, (v) => (0.5 - v) * 40), y: useTransform(my, (v) => (0.5 - v) * 40) }}
-      />
-    </section>
-  );
-}
+      {/* ── Results ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-16 sm:py-24 border-t border-white/[0.06]">
+        <motion.div {...fadeUp(0)} className="mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 text-white/40 text-xs font-semibold uppercase tracking-widest mb-4">Outcomes</div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
+            Real <span className="text-emerald-400">results.</span>
+          </h2>
+        </motion.div>
+        <div className="grid sm:grid-cols-3 gap-4">
+          {RESULTS.map((r, i) => (
+            <motion.div key={r.tag} {...fadeUp(i * 0.07)} className="rounded-3xl border border-white/8 bg-white/[0.04] p-8 backdrop-blur">
+              <div className="text-xs font-bold uppercase tracking-widest text-white/30 mb-4">{r.tag}</div>
+              <div className={`text-5xl font-black tracking-tight mb-2 ${r.color}`}>{r.metric}</div>
+              <p className="text-sm text-white/55 leading-relaxed">{r.label}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-/* ---------- Cards ---------- */
+      {/* ── FAQ ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-16 sm:py-24 border-t border-white/[0.06]">
+        <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12 items-start">
+          <motion.div {...fadeUp(0)}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 text-white/40 text-xs font-semibold uppercase tracking-widest mb-4">FAQ</div>
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tight mb-4">Got <span className="text-pink-400">questions?</span></h2>
+            <p className="text-white/45 text-sm leading-relaxed mb-8">We've answered the most common ones below. Still curious? Just ask.</p>
+            <Link href="/contact" className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-pink-500/30 bg-pink-500/10 text-pink-300 text-sm font-semibold hover:bg-pink-500/15 transition">
+              Talk to us <ArrowRight className="h-4 w-4" />
+            </Link>
+          </motion.div>
+          <div className="space-y-3">
+            {FAQS.map((faq, i) => (
+              <motion.div key={i} {...fadeUp(i * 0.06)} className="rounded-2xl border border-white/8 bg-white/[0.04] overflow-hidden">
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left"
+                >
+                  <span className="text-sm font-semibold text-white/90">{faq.q}</span>
+                  {openFaq === i ? <Minus className="h-4 w-4 text-pink-400 flex-shrink-0" /> : <Plus className="h-4 w-4 text-white/40 flex-shrink-0" />}
+                </button>
+                <AnimatePresence initial={false}>
+                  {openFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <div className="px-6 pb-5 text-sm text-white/50 leading-relaxed">{faq.a}</div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-function ServiceCard({ icon: Icon, title, blurb, bullets, index }: any) {
-  return (
-    <motion.article {...fadeUp(0.05 * index)} whileHover={{ y: -4 }} className="glassy-card group relative rounded-2xl p-5">
-      <div className="flex items-center gap-3">
-        <span className="rounded-xl border border-white/15 bg-white/10 p-2 backdrop-blur">
-          <Icon className="h-5 w-5" />
-        </span>
-        <h3 className="text-base font-semibold">{title}</h3>
-      </div>
-      <p className="mt-3 text-sm text-white/80">{blurb}</p>
-      <ul className="mt-4 space-y-2 text-sm">
-        {bullets.map((b: string) => (
-          <li key={b} className="flex items-start gap-2">
-            <BadgeCheck className="mt-0.5 h-4 w-4 flex-none text-emerald-300" />
-            <span className="text-white/85">{b}</span>
-          </li>
-        ))}
-      </ul>
-      <Link href="/contact" className="mt-4 inline-flex items-center gap-1 text-sm font-medium hover:underline underline-offset-2">
-        Learn more <ArrowRight className="h-3.5 w-3.5" />
-      </Link>
-      <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-gradient-to-tr from-emerald-400/30 to-indigo-400/30 blur-xl transition-opacity group-hover:opacity-100" />
-    </motion.article>
-  );
-}
-
-function AnimatedCounter({ to, suffix = "" }: { to: number; suffix?: string }) {
-  return (
-    <motion.span
-      className="block text-2xl md:text-3xl font-semibold"
-      initial={{ opacity: 0, y: 6 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.6 }}
-      transition={{ duration: 0.6, ease: EASE }}
-    >
-      <Counter to={to} />
-      {suffix}
-    </motion.span>
-  );
-}
-
-function Counter({ to }: { to: number }) {
-  const decimals = String(to).includes(".") ? 1 : 0;
-  return (
-    <AnimatePresence mode="wait">
-      <motion.span key={to} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: EASE }}>
-        {to.toFixed(decimals)}
-      </motion.span>
-    </AnimatePresence>
-  );
-}
-
-/* ---------- Backdrops (no grid) ---------- */
-
-function Aurora() {
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-      {/* soft color swells */}
-      <motion.div
-        className="absolute -top-32 left-1/2 h-[42rem] w-[42rem] -translate-x-1/2 rounded-full bg-gradient-to-tr from-indigo-400/25 via-emerald-400/25 to-fuchsia-400/25 blur-3xl"
-        initial={{ opacity: 0.2, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.2, ease: EASE }}
-      />
-      <motion.div
-        className="absolute bottom-[-20%] left-[10%] h-72 w-72 rounded-full bg-gradient-to-tr from-fuchsia-400/20 to-cyan-400/20 blur-3xl"
-        animate={{ y: [0, -12, 0] }}
-        transition={{ repeat: Infinity, duration: 8, ease: EASE_INOUT }}
-      />
-      <motion.div
-        className="absolute right-[10%] top-[20%] h-72 w-72 rounded-full bg-gradient-to-tr from-emerald-400/20 to-indigo-400/20 blur-3xl"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 9, ease: EASE_INOUT }}
-      />
-    </div>
-  );
-}
-
-/* Full-bleed neon background (no grid/check pattern) */
-function NeonBackdrop() {
-  return (
-    <div className="pointer-events-none fixed inset-0 -z-[100]">
-      {/* Base */}
-      <div className="absolute inset-0 bg-[#0b1020]" />
-      {/* Smooth aurora only (no grid) */}
-      <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_10%,rgba(99,102,241,0.25),transparent_50%),radial-gradient(70%_50%_at_80%_20%,rgba(34,197,94,0.20),transparent_50%)]" />
-      {/* Slow conic glow */}
-      <div
-        aria-hidden
-        className="absolute -top-40 left-1/2 h-[70rem] w-[70rem] -translate-x-1/2 rounded-full blur-3xl opacity-35"
-        style={{
-          background:
-            "conic-gradient(from 180deg at 50% 50%, rgba(59,130,246,0.35), rgba(168,85,247,0.35), rgba(34,197,94,0.35), rgba(59,130,246,0.35))",
-          animation: "spin 50s linear infinite",
-        }}
-      />
-      <style jsx>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      {/* ── CTA ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pb-24">
+        <motion.div
+          {...fadeUp(0)}
+          className="relative overflow-hidden rounded-3xl border border-pink-500/20 bg-gradient-to-br from-pink-600/10 via-fuchsia-600/8 to-violet-600/10 p-10 sm:p-14 text-center backdrop-blur"
+        >
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_0%,rgba(236,72,153,0.12),transparent)]" />
+          <div className="relative z-10">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight mb-4">
+              Ready to elevate your brand?
+            </h2>
+            <p className="text-white/50 text-base mb-8 max-w-lg mx-auto">
+              Book a free 30-min design consult. We'll audit your current UI and propose a focused sprint plan.
+            </p>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white text-sm font-bold shadow-[0_0_40px_rgba(236,72,153,0.4)] hover:shadow-[0_0_55px_rgba(236,72,153,0.55)] hover:-translate-y-0.5 transition-all duration-200"
+            >
+              Book a session <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </motion.div>
+      </section>
     </div>
   );
 }
