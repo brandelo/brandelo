@@ -6,19 +6,29 @@ import Image from "next/image";
 
 const SERVICES = [
   {
-    title: "DESIGN",
-    img: "https://images.unsplash.com/photo-1618788372246-79faff0c3742?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8dWklMjB1eHxlbnwwfDF8MHx8fDI%3D&auto=format&fit=crop&q=60&w=500",
-    href: "/services/design",
+    title: "SEO",
+    img: "https://images.unsplash.com/photo-1571444846843-ea7c89a05b22?q=80&w=800&auto=format&fit=crop",
+    href: "/services/seo",
   },
   {
-    title: "MARKETING",
-    img: "https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=1600&auto=format&fit=crop",
-    href: "/services/marketing",
+    title: "SMM",
+    img: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=800&auto=format&fit=crop",
+    href: "/services/smm",
   },
   {
-    title: "TECHNOLOGY",
-    img: "https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687",
-    href: "/services/technology",
+    title: "WEB DEV",
+    img: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=800&auto=format&fit=crop",
+    href: "/services/web-development",
+  },
+  {
+    title: "APP DEV",
+    img: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=800&auto=format&fit=crop",
+    href: "/services/app-development",
+  },
+  {
+    title: "CONTENT",
+    img: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop",
+    href: "/services/content-marketing",
   },
 ];
 

@@ -7,23 +7,31 @@ import { useState, useEffect, useRef } from "react";
 import {
   Instagram, Facebook, Twitter,
   Phone, Mail, MapPin, ArrowRight,
-  ChevronDown, Palette, Megaphone, Code2,
+  ChevronDown, TrendingUp, Users, Code2, Smartphone, FileText
 } from "lucide-react";
 
 // ── nav items ──────────────────────────────────────────────
 type Item = { href: string; label: string };
 
 const serviceItems = [
-  { href: "/services/design",     label: "Design",     icon: <Palette  className="h-4 w-4 text-pink-400"   />, desc: "Branding & UI/UX" },
-  { href: "/services/marketing",  label: "Marketing",  icon: <Megaphone className="h-4 w-4 text-yellow-400" />, desc: "SEO & Social Media" },
-  { href: "/services/technology", label: "Technology", icon: <Code2    className="h-4 w-4 text-cyan-400"   />, desc: "Web & App Dev" },
+  { href: "/services/seo",               label: "SEO",               icon: <TrendingUp className="h-4 w-4 text-emerald-400" />, desc: "Rank #1 on Google" },
+  { href: "/services/smm",               label: "SMM",               icon: <Users      className="h-4 w-4 text-pink-400"    />, desc: "Social Growth & Ads" },
+  { href: "/services/web-development",    label: "Web Dev",           icon: <Code2      className="h-4 w-4 text-cyan-400"    />, desc: "Next.js & Performance" },
+  { href: "/services/app-development",    label: "App Dev",           icon: <Smartphone className="h-4 w-4 text-indigo-400"  />, desc: "iOS & Android Apps" },
+  { href: "/services/content-marketing",  label: "Content Marketing", icon: <FileText   className="h-4 w-4 text-orange-400"  />, desc: "Stories that Convert" },
+];
+
+const packageItems = [
+  { href: "/pricing?type=seo",       label: "SEO Packages",       icon: <TrendingUp className="h-4 w-4 text-emerald-400" />, desc: "Organic Growth Tiers" },
+  { href: "/pricing?type=ecommerce", label: "Ecommerce SEO",      icon: <FileText   className="h-4 w-4 text-indigo-400"  />, desc: "Online Store Success" },
+  { href: "/pricing?type=smm",       label: "SMO Packages",       icon: <Users      className="h-4 w-4 text-pink-400"    />, desc: "Social Trust Building" },
+  { href: "/pricing?type=web",       label: "Web Packages",       icon: <Code2      className="h-4 w-4 text-cyan-400"    />, desc: "Modern Website Design" },
 ];
 
 const navItems: Item[] = [
   { href: "/",        label: "Home"    },
   { href: "/about",   label: "About"   },
-  // Services has dropdown — handled separately
-  { href: "/pricing", label: "Pricing" },
+  // Services & Packages have dropdowns — handled separately
   { href: "/contact", label: "Contact" },
   { href: "/blog",    label: "Blog"    },
 ];
@@ -34,12 +42,16 @@ export default function Navbar() {
   const [open,    setOpen]    = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(true);
-  const [dropdown, setDropdown] = useState(false);
+  const [servicesDropdown, setServicesDropdown] = useState(false);
+  const [packagesDropdown, setPackagesDropdown] = useState(false);
+  const [mobilePackagesOpen, setMobilePackagesOpen] = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
+  const packRef = useRef<HTMLDivElement>(null);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname?.startsWith(href);
   const servicesActive = pathname?.startsWith("/services");
+  const packagesActive = pathname?.startsWith("/pricing");
 
   // scroll behaviour
   useEffect(() => {
@@ -58,7 +70,9 @@ export default function Navbar() {
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       if (dropRef.current && !dropRef.current.contains(e.target as Node))
-        setDropdown(false);
+        setServicesDropdown(false);
+      if (packRef.current && !packRef.current.contains(e.target as Node))
+        setPackagesDropdown(false);
     };
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
@@ -119,9 +133,9 @@ export default function Navbar() {
               {/* Services dropdown */}
               <div className="relative" ref={dropRef}>
                 <button
-                  onMouseEnter={() => setDropdown(true)}
-                  onMouseLeave={() => setDropdown(false)}
-                  onClick={() => setDropdown((v) => !v)}
+                  onMouseEnter={() => setServicesDropdown(true)}
+                  onMouseLeave={() => setServicesDropdown(false)}
+                  onClick={() => setServicesDropdown((v) => !v)}
                   className={`relative flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-full transition-all duration-200
                     ${servicesActive
                       ? "text-white bg-white/10"
@@ -130,7 +144,7 @@ export default function Navbar() {
                 >
                   Services
                   <ChevronDown
-                    className={`h-3.5 w-3.5 transition-transform duration-200 ${dropdown ? "rotate-180" : ""}`}
+                    className={`h-3.5 w-3.5 transition-transform duration-200 ${servicesDropdown ? "rotate-180" : ""}`}
                   />
                   {servicesActive && (
                     <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-cyan-400" />
@@ -139,10 +153,10 @@ export default function Navbar() {
 
                 {/* Dropdown panel */}
                 <div
-                  onMouseEnter={() => setDropdown(true)}
-                  onMouseLeave={() => setDropdown(false)}
+                  onMouseEnter={() => setServicesDropdown(true)}
+                  onMouseLeave={() => setServicesDropdown(false)}
                   className={`absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 w-64 transition-all duration-200 origin-top ${
-                    dropdown ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"
+                    servicesDropdown ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"
                   }`}
                 >
                   {/* Arrow */}
@@ -155,7 +169,7 @@ export default function Navbar() {
                         <Link
                           key={s.href}
                           href={s.href}
-                          onClick={() => setDropdown(false)}
+                          onClick={() => setServicesDropdown(false)}
                           className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group
                             ${pathname?.startsWith(s.href)
                               ? "bg-white/10 text-white"
@@ -174,7 +188,7 @@ export default function Navbar() {
                       {/* View all */}
                       <Link
                         href="/services"
-                        onClick={() => setDropdown(false)}
+                        onClick={() => setServicesDropdown(false)}
                         className="mt-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 text-xs font-medium text-white/50 hover:text-white/80 hover:bg-white/[0.05] transition"
                       >
                         View all services <ArrowRight className="h-3 w-3" />
@@ -184,8 +198,66 @@ export default function Navbar() {
                 </div>
               </div>
 
-              {/* Pricing */}
-              <NavLink href="/pricing" label="Pricing" active={isActive("/pricing")} />
+              {/* Packages dropdown */}
+              <div className="relative" ref={packRef}>
+                <button
+                  onMouseEnter={() => setPackagesDropdown(true)}
+                  onMouseLeave={() => setPackagesDropdown(false)}
+                  onClick={() => setPackagesDropdown((v) => !v)}
+                  className={`relative flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-full transition-all duration-200
+                    ${packagesActive
+                      ? "text-white bg-white/10"
+                      : "text-white/60 hover:text-white hover:bg-white/[0.07]"
+                    }`}
+                >
+                  Packages
+                  <ChevronDown
+                    className={`h-3.5 w-3.5 transition-transform duration-200 ${packagesDropdown ? "rotate-180" : ""}`}
+                  />
+                  {packagesActive && (
+                    <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-cyan-400" />
+                  )}
+                </button>
+
+                {/* Dropdown panel */}
+                <div
+                  onMouseEnter={() => setPackagesDropdown(true)}
+                  onMouseLeave={() => setPackagesDropdown(false)}
+                  className={`absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 w-64 transition-all duration-200 origin-top ${
+                    packagesDropdown ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"
+                  }`}
+                >
+                  {/* Arrow */}
+                  <div className="flex justify-center mb-1">
+                    <div className="w-3 h-3 rotate-45 bg-[#0f1629] border-l border-t border-white/10" />
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-[#0f1629]/95 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden">
+                    <div className="p-2 flex flex-col gap-1">
+                      {packageItems.map((p) => (
+                        <Link
+                          key={p.href}
+                          href={p.href}
+                          onClick={() => setPackagesDropdown(false)}
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group
+                            ${pathname === p.href
+                              ? "bg-white/10 text-white"
+                              : "text-white/70 hover:text-white hover:bg-white/[0.07]"
+                            }`}
+                        >
+                          <span className="grid h-8 w-8 place-items-center rounded-lg bg-white/5 border border-white/10 shrink-0 group-hover:border-white/20 transition">
+                            {p.icon}
+                          </span>
+                          <span>
+                            <span className="block text-sm font-medium leading-tight">{p.label}</span>
+                            <span className="block text-[11px] text-white/40">{p.desc}</span>
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Contact */}
               <NavLink href="/contact" label="Contact" active={isActive("/contact")} />
               {/* Blog */}
@@ -246,10 +318,50 @@ export default function Navbar() {
               </Link>
             ))}
 
+            {/* packages accordion */}
+            <div>
+              <button
+                onClick={() => setMobilePackagesOpen((v) => !v)}
+                className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150
+                  ${packagesActive
+                    ? "text-white bg-white/10 border border-white/10"
+                    : "text-white/60 hover:text-white hover:bg-white/[0.06]"
+                  }`}
+              >
+                <span className="flex items-center gap-3">
+                  {packagesActive && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />}
+                  Packages
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${mobilePackagesOpen ? "rotate-180" : ""}`} />
+              </button>
+              <div className={`overflow-hidden transition-all duration-300 ${mobilePackagesOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"}`}>
+                <div className="ml-4 mt-1 flex flex-col gap-1 border-l border-white/10 pl-4">
+                  {packageItems.map((p) => (
+                    <Link
+                      key={p.href}
+                      href={p.href}
+                      onClick={() => { setOpen(false); setMobilePackagesOpen(false); }}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150
+                        ${pathname === p.href
+                          ? "text-white bg-white/10"
+                          : "text-white/60 hover:text-white hover:bg-white/[0.06]"
+                        }`}
+                    >
+                      {p.icon}
+                      <span>
+                        <span className="block font-medium leading-tight">{p.label}</span>
+                        <span className="block text-[11px] text-white/40">{p.desc}</span>
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             {/* services accordion */}
             <div>
               <button
-                onClick={() => setDropdown((v) => !v)}
+                onClick={() => setServicesDropdown((v) => !v)}
                 className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150
                   ${servicesActive
                     ? "text-white bg-white/10 border border-white/10"
@@ -260,15 +372,15 @@ export default function Navbar() {
                   {servicesActive && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />}
                   Services
                 </span>
-                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${dropdown ? "rotate-180" : ""}`} />
+                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${servicesDropdown ? "rotate-180" : ""}`} />
               </button>
-              <div className={`overflow-hidden transition-all duration-300 ${dropdown ? "max-h-60 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className={`overflow-hidden transition-all duration-300 ${servicesDropdown ? "max-h-80 opacity-100" : "max-h-0 opacity-0"}`}>
                 <div className="ml-4 mt-1 flex flex-col gap-1 border-l border-white/10 pl-4">
                   {serviceItems.map((s) => (
                     <Link
                       key={s.href}
                       href={s.href}
-                      onClick={() => { setOpen(false); setDropdown(false); }}
+                      onClick={() => { setOpen(false); setServicesDropdown(false); }}
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150
                         ${pathname?.startsWith(s.href)
                           ? "text-white bg-white/10"

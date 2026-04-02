@@ -52,12 +52,18 @@ export default function Footer() {
   ];
 
   const services = [
-    { label: "SEO", href: "/services/seo" },
-    { label: "Social Media Marketing", href: "/services/social-media" },
-    { label: "PPC / Performance Ads", href: "/services/ppc" },
-    { label: "Content Marketing", href: "/services/content" },
-    { label: "Website Development", href: "/services/web-development" },
+    { label: "SEO Services", href: "/services/seo" },
+    { label: "SMM Services", href: "/services/smm" },
+    { label: "Web Development", href: "/services/web-development" },
     { label: "App Development", href: "/services/app-development" },
+    { label: "Content Marketing", href: "/services/content-marketing" },
+  ];
+
+  const packages = [
+    { label: "SEO Packages", href: "/pricing?type=seo" },
+    { label: "Ecommerce Packages", href: "/pricing?type=ecommerce" },
+    { label: "SMO Packages", href: "/pricing?type=smm" },
+    { label: "Web Packages", href: "/pricing?type=web" },
   ];
 
   const socials = [
@@ -74,7 +80,7 @@ export default function Footer() {
 
       {/* ── Main Content ── */}
       <div className="mx-auto max-w-7xl px-6 pt-20 pb-12 lg:px-10">
-        <div className="grid grid-cols-1 gap-14 lg:grid-cols-[1fr_auto_auto_1fr] lg:gap-10">
+        <div className="grid grid-cols-1 gap-14 sm:grid-cols-2 lg:grid-cols-5 lg:gap-10">
 
           {/* ── Col 1: Headline + Form ── */}
           <div className="lg:col-span-1">
@@ -156,8 +162,27 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* ── Col 4: Address + Social ── */}
-          <div className="lg:col-span-1 lg:text-right flex flex-col justify-between gap-10">
+          {/* ── Col 4: Packages ── */}
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40 mb-6">
+              Our Packages
+            </h3>
+            <ul className="space-y-3">
+              {packages.map((p) => (
+                <li key={p.label}>
+                  <Link
+                    href={p.href}
+                    className="text-sm text-white/70 hover:text-white transition-colors duration-150"
+                  >
+                    {p.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* ── Col 5: Address + Social ── */}
+          <div className="sm:col-span-2 lg:col-span-1 lg:text-right flex flex-col justify-between gap-10">
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40 mb-4">
                 Find Us

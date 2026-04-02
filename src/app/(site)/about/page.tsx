@@ -69,17 +69,21 @@ export default function AboutPage() {
   ];
 
   const STATS = [
-    { value: "150+", label: "Projects Delivered" },
-    { value: "80+", label: "Happy Clients" },
-    { value: "6+", label: "Years Active" },
+    { value: "300+", label: "Success Stories" },
+    { value: "150+", label: "Happy Clients" },
+    { value: "10+", label: "Years of Excellence" },
     { value: "12+", label: "Industries Served" },
   ];
 
   const VALUES = [
-    { emoji: "🎯", title: "Clarity First", desc: "Simple roadmaps, zero guesswork, weekly momentum." },
-    { emoji: "🚀", title: "Always Moving", desc: "Ship → learn → refine. Stagnation isn't in our vocab." },
-    { emoji: "✨", title: "Obsessive Craft", desc: "Every pixel, every word, every metric — polished to perfection." },
-    { emoji: "📈", title: "Real Results", desc: "Revenue and retention over vanity metrics — always." },
+    { emoji: "🤝", title: "Consumer Centricity", desc: "Your success is our mission. We win trust by focusing on your needs and providing exceptional service." },
+    { emoji: "🚀", title: "Radical Collaboration", desc: "We operate best as an integrated team, valuing every client as a key stakeholder." },
+    { emoji: "✨", title: "Personal Excellence", desc: "We bring our best selves to every project, encouraging each other to reach our full potential." },
+    { emoji: "⚖️", title: "Sustainable Integrity", desc: "Open, honest, and sustainable business practices are at the heart of everything we do." },
+  ];
+
+  const INDUSTRIES = [
+    "B2B SaaS", "Healthcare", "Education", "E-commerce", "Financial Services", "Insurance", "Real Estate", "Fintech"
   ];
 
   return (
@@ -109,7 +113,7 @@ export default function AboutPage() {
             className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/5 px-4 py-2 backdrop-blur mb-10"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">Agency Beings · Since 2018</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">Established Excellence · Over 10 Years</span>
           </motion.div>
 
           {/* Main heading */}
@@ -119,13 +123,11 @@ export default function AboutPage() {
             transition={{ duration: 0.9, ease: EASE, delay: 0.1 }}
             className="text-[clamp(42px,8vw,100px)] font-black leading-[0.95] tracking-tight text-white max-w-5xl"
           >
-            We make your<br />
-            brand{" "}
+            10+ years of<br />
+            strategic{" "}
             <span className="bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-emerald-400 bg-clip-text text-transparent italic">
-              impossible
+              digital growth.
             </span>
-            <br />
-            to ignore.
           </motion.h1>
 
           <motion.p
@@ -134,8 +136,7 @@ export default function AboutPage() {
             transition={{ duration: 0.7, ease: EASE, delay: 0.25 }}
             className="mt-8 text-lg text-white/45 max-w-xl leading-relaxed"
           >
-            We craft experiences that captivate, inspire, and leave lasting impressions.
-            Data-driven strategies meet bold creative — ready to shake things up?
+            Trusted business consulting and digital marketing service provider. We help you scale, grow, and navigate the complex business landscape.
           </motion.p>
 
           <motion.div
@@ -193,16 +194,24 @@ export default function AboutPage() {
           </div>
 
           {/* Right — copy */}
-          <div className="flex flex-col gap-7 pt-2 lg:pt-16">
-            <motion.p {...fx(0.1)} className="text-xl text-black/70 leading-[1.75]">
-              Brandelo is a performance-focused digital marketing and creative growth studio. We specialise in SEO, Google &amp; Meta Ads, social media marketing, branding, and modern web development — helping businesses grow <span className="font-bold text-[#0e0e0e]">revenue, traffic, and conversions</span> with data-driven strategies.
-            </motion.p>
-            <motion.p {...fx(0.15)} className="text-lg text-black/55 leading-relaxed">
-              We work closely with visionary leaders and forward-thinking companies, helping them navigate the complexities of the digital world. From crafting compelling brand identities to executing cutting-edge marketing strategies, our team is dedicated to your success.
-            </motion.p>
+          <div className="flex flex-col gap-10 pt-2 lg:pt-16">
+            <div>
+               <h3 className="text-sm font-bold uppercase tracking-widest text-[#0e0e0e] mb-4">Our Vision</h3>
+               <motion.p {...fx(0.1)} className="text-xl text-black/70 leading-[1.75]">
+                By revolutionizing the sector and establishing new benchmarks for professionalism, we aim to be global leaders in digital marketing. Our goal is to be the premier firm for online brand management, digital sales solutions, and strategic marketing.
+              </motion.p>
+            </div>
+            
+            <div>
+               <h3 className="text-sm font-bold uppercase tracking-widest text-[#0e0e0e] mb-4">Our Mission</h3>
+               <motion.p {...fx(0.15)} className="text-lg text-black/55 leading-relaxed">
+                We work alongside our clients to ensure their success, building a diversified portfolio across industries. We deliver consistently effective, distinctive, and innovative digital marketing solutions that consider the unique needs of every partner.
+              </motion.p>
+            </div>
+
             <motion.div {...fx(0.2)} className="pt-2">
               <Link href="/contact" className="group inline-flex items-center gap-2 rounded-full bg-[#0e0e0e] text-white text-sm font-bold px-7 py-3.5 hover:bg-black/80 transition-all">
-                Chat with an expert <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                Let&apos;s build your future <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </motion.div>
           </div>
@@ -255,16 +264,16 @@ export default function AboutPage() {
       <section className="max-w-7xl mx-auto px-6 lg:px-12 py-28 lg:py-36">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
           <div>
-            <motion.div {...fx(0)}><SectionLabel>Our Culture</SectionLabel></motion.div>
+            <motion.div {...fx(0)}><SectionLabel>Our Philosophy</SectionLabel></motion.div>
             <motion.h2 {...fx(0.06)} className="text-[clamp(32px,5vw,56px)] font-black leading-[1.05] tracking-tight mb-6">
-              We don&apos;t settle for &ldquo;good&rdquo;, and neither should you.
+              Empowering brands to stay ahead of the curve.
             </motion.h2>
             <motion.p {...fx(0.12)} className="text-lg text-black/55 leading-relaxed mb-8 max-w-md">
-              We&apos;re a little bit rebellious and a whole lot ambitious. We take on challenges like we&apos;ve got something to prove — because we do. We don&apos;t stop until your brand is the talk of the town, and maybe even the internet.
+              At Brandelo, we believe change is the only constant. We leverage cutting-edge technology and processes to boost productivity and build foundations for long-term success. Our goal is to assist our clients in developing meaningful interactions with their audience.
             </motion.p>
             <motion.div {...fx(0.16)}>
               <Link href="/contact" className="group inline-flex items-center gap-2 rounded-full bg-[#0e0e0e] text-white text-sm font-bold px-7 py-3.5 hover:bg-black/80 transition-all">
-                Join the journey <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                Partner with us <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </motion.div>
           </div>
@@ -288,7 +297,7 @@ export default function AboutPage() {
       </section>
 
       {/* ═══════════════ MARQUEE 3 ═══════════════ */}
-      <Marquee text="Marketing is our Jam" speed={20} italic />
+      <Marquee text={INDUSTRIES.join(" · ")} speed={25} italic />
 
       {/* ═══════════════ SERVICES ═══════════════ */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 py-28 lg:py-36">
@@ -328,6 +337,23 @@ export default function AboutPage() {
             );
           })}
         </div>
+
+        {/* Success Story / Testimonial */}
+        <motion.div {...fx(0.15)} className="mt-24 border-t border-black/10 pt-20">
+          <div className="max-w-3xl">
+             <SectionLabel>Client Success</SectionLabel>
+             <h3 className="text-[clamp(28px,4vw,42px)] font-black leading-tight tracking-tight mb-8">
+              &ldquo;Since partnering with Brandelo, we have seen a 300% increase in lead generation. Their expertise is undoubtedly top-tier.&rdquo;
+             </h3>
+             <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-full bg-black/5 flex items-center justify-center font-bold text-black/30 italic">RD</div>
+                <div>
+                   <p className="font-bold text-[#0e0e0e]">Strategic Partner</p>
+                   <p className="text-sm text-black/45 italic">E-commerce Enterprise</p>
+                </div>
+             </div>
+          </div>
+        </motion.div>
       </section>
 
       {/* ═══════════════ BOTTOM CTA ═══════════════ */}
