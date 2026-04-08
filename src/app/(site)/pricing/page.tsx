@@ -1,20 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
 import { Check, ArrowRight, Sparkles, Zap, ChevronDown } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 
 /* ─────────────────── Types & Data ─────────────────── */
-type Rates = Record<string, number>;
-
 const CATEGORIES = [
   { key: "seo", label: "SEO" },
-  { key: "ecommerce", label: "Ecommerce SEO" },
   { key: "smm", label: "Social Media" },
-  { key: "web", label: "Web Dev" },
+  { key: "web", label: "Website Development" },
+  { key: "addons", label: "Add-ons" },
 ] as const;
 
 type CategoryKey = (typeof CATEGORIES)[number]["key"];
@@ -24,181 +21,297 @@ type Tier = {
   price: number;
   badge?: string;
   highlight?: boolean;
+  isOneTime?: boolean;
   features: string[];
   details?: Record<string, string | boolean | number>;
 };
 
-type Section = { key: CategoryKey; label: string; desc: string; tiers: Tier[] };
+type Section = {
+  key: CategoryKey;
+  label: string;
+  desc: string;
+  tiers: Tier[];
+};
 
 const SECTIONS: Section[] = [
   {
-    key: "seo", label: "Search Engine Optimisation",
-    desc: "Rank higher and get found faster with data-driven organic growth strategies.",
+    key: "seo",
+    label: "Search Engine Optimisation",
+    desc: "Grow organic visibility with structured SEO campaigns, backlinks, reporting, and on-page improvements.",
     tiers: [
       {
-        name: "Basic", price: 600, badge: "Startup",
-        features: ["30 Keywords", "120 Backlinks / mo", "Site Analysis", "Google Indexing", "1 Blog Content / mo"],
+        name: "Basic",
+        price: 199,
+        badge: "Starter",
+        features: [
+          "5 - 8 Keywords",
+          "80 - 100 Backlinks",
+          "Weekly Reports",
+          "Off-page SEO",
+        ],
         details: {
-          "Keywords": 30, "Backlinks": 120, "GBP (GMB)": false, "Geotagging": false,
-          "Pre-Optimization Analysis": true, "Competitor Analysis": true, "Keyword Research": true, "Google Penalty Check": true,
-          "Title Tag Optimization": true, "META Tags Optimization": true, "Content Optimization": true, "Robots.txt Creation": true, "Google XML Sitemap": true,
-          "Search Engine Submission": 10, "Article Writing": 1, "Article Posting": 1, "Social Bookmarking": 30, "Monthly Analytics Report": true,
-        }
+          Price: "$199.00",
+          Keywords: "5 - 8 Keywords",
+          Platform: "80 - 100 Backlinks (Search Engine)",
+          Graphics: "Weekly Reports",
+          Service: "Only Off Page No On page optimisation",
+          Delivery: "List of Work will be shared etc. (Strategy decide)",
+          "Freebies Provided if asked":
+            "7 days - Keyword provided, Keyword Research 10 links",
+          "Budget extra": "NA",
+          Taxes: "NA",
+        },
       },
       {
-        name: "Standard", price: 900, badge: "Growing Business", highlight: true,
-        features: ["40 Keywords", "210 Backlinks / mo", "GBP Optimization", "4 Facebook Posts / mo", "2 Blog Contents / mo"],
+        name: "Business",
+        price: 299,
+        badge: "Popular",
+        highlight: true,
+        features: [
+          "15 - 18 Keywords",
+          "150 - 170 Backlinks",
+          "Weekly Reports",
+          "Off-page + Basic On-page",
+        ],
         details: {
-          "Keywords": 40, "Backlinks": 210, "GBP (GMB)": true, "Geotagging": false,
-          "Pre-Optimization Analysis": true, "Competitor Analysis": true, "Keyword Research": true, "Google Penalty Check": true,
-          "Title Tag Optimization": true, "META Tags Optimization": true, "Content Optimization": true, "Robots.txt Creation": true, "Google XML Sitemap": true,
-          "Search Engine Submission": 20, "Article Writing": 2, "Article Posting": 2, "Social Bookmarking": 40, "Monthly Analytics Report": true,
-        }
+          Price: "$299.00",
+          Keywords: "15 - 18 Keywords",
+          Platform: "150 - 170 Backlinks (Search Engine)",
+          Graphics: "Weekly Reports",
+          Service: "Off Page + Basic On Page SEO",
+          Delivery: "List of Work will be shared etc. (Strategy decide)",
+          "Freebies Provided if asked":
+            "7 days - Keyword provided, Keyword Research 10 links",
+          "Budget extra": "NA",
+          Taxes: "NA",
+        },
       },
       {
-        name: "Professional", price: 1250, badge: "Enterprise",
-        features: ["50 Keywords", "300 Backlinks / mo", "Geotagging & Schema", "8 Instagram Posts / mo", "3 Blog Contents / mo"],
+        name: "Corporate",
+        price: 499,
+        badge: "Best Value",
+        features: [
+          "20 - 30 Keywords",
+          "200 Backlinks",
+          "Weekly Reports",
+          "Off-page + Advance On-page",
+        ],
         details: {
-          "Keywords": 50, "Backlinks": 300, "GBP (GMB)": true, "Geotagging": true,
-          "Pre-Optimization Analysis": true, "Competitor Analysis": true, "Keyword Research": true, "Google Penalty Check": true,
-          "Title Tag Optimization": true, "META Tags Optimization": true, "Content Optimization": true, "Robots.txt Creation": true, "Google XML Sitemap": true,
-          "Search Engine Submission": 30, "Article Writing": 3, "Article Posting": 3, "Social Bookmarking": 50, "Monthly Analytics Report": true,
-        }
-      },
-      {
-        name: "Enterprise", price: 2000, badge: "Aggressive",
-        features: ["100 Keywords", "600 Backlinks / mo", "Full Site Architecture", "16 App Posts / mo", "6 Blog Contents / mo"],
-        details: {
-          "Keywords": 100, "Backlinks": 600, "GBP (GMB)": true, "Geotagging": true,
-          "Pre-Optimization Analysis": true, "Competitor Analysis": true, "Keyword Research": true, "Google Penalty Check": true,
-          "Title Tag Optimization": true, "META Tags Optimization": true, "Content Optimization": true, "Robots.txt Creation": true, "Google XML Sitemap": true,
-          "Search Engine Submission": 40, "Article Writing": 6, "Article Posting": 6, "Social Bookmarking": 80, "Monthly Analytics Report": true,
-        }
+          Price: "$499.00",
+          Keywords: "20 - 30 Keywords",
+          Platform: "200 Backlinks (Search Engine)",
+          Graphics: "Weekly Reports",
+          Service: "Off Page + Advance On Page SEO",
+          Delivery: "List of Work will be shared etc. (Strategy decide)",
+          "Freebies Provided if asked":
+            "7 days - Keyword provided, Keyword Research 10 links",
+          "Budget extra": "NA",
+          Taxes: "NA",
+        },
       },
     ],
   },
   {
-    key: "ecommerce", label: "Ecommerce SEO",
-    desc: "Drive massive sales through targeted online research and product optimization.",
+    key: "smm",
+    label: "Social Media Marketing",
+    desc: "Consistent posting, reels, hashtag planning, competitor analysis, and performance reporting.",
     tiers: [
       {
-        name: "BASIC", price: 499, badge: "Start Selling",
-        features: ["50 Keywords", "70 Backlinks / mo", "Shopping Cart Analysis", "Product Image SEO", "150 Service Hours"],
+        name: "Basic",
+        price: 150,
+        badge: "Starter",
+        features: [
+          "5 Graphic Posts",
+          "Weekly Reports",
+          "Hashtag Research",
+          "Content Marketing",
+        ],
         details: {
-          "Keywords": 50, "Monthly Hours": 150, "Backlinks": 70, "Website Analysis": true, "Competition Analysis": true, "Keyword Research": true,
-          "Product Markup (Schema)": true, "Rich Snippets Optimization": true, "Page Speed Analysis": true, "Heading Tags Optimization": true,
-          "Guest Blogging": 2, "Search Engine Submissions": 3, "Social Bookmarking Links": 20, "Facebook Profile Promotion": 10,
-        }
+          Price: "$150.00",
+          "Graphics For SMM": "5 Graphic Post",
+          Reports: "Weekly Reports",
+          Service: "Hashtags Research + Content Marketing",
+          Delivery: "List of Work will be shared etc. (Strategy decide)",
+          Freebies: "7 days - 1 graphic Posting",
+          "Budget extra": "NA",
+          Taxes: "NA",
+        },
       },
       {
-        name: "STANDARD", price: 1099, badge: "Scale Up", highlight: true,
-        features: ["100 Keywords", "120 Backlinks / mo", "Funnel Recommendations", "Remarketing Setup", "170 Service Hours"],
+        name: "Business",
+        price: 199,
+        badge: "Popular",
+        highlight: true,
+        features: [
+          "8 Graphic Posts + 1 Reel",
+          "Weekly Reports",
+          "Competitors Analysis",
+          "Optimizations",
+        ],
         details: {
-          "Keywords": 100, "Monthly Hours": 170, "Backlinks": 120, "Website Analysis": true, "Competition Analysis": true, "Keyword Research": true,
-          "Product Markup (Schema)": true, "Rich Snippets Optimization": true, "Page Speed Analysis": true, "Heading Tags Optimization": true,
-          "Guest Blogging": 5, "Search Engine Submissions": 5, "Social Bookmarking Links": 40, "Facebook Profile Promotion": 15,
-        }
+          Price: "$199.00",
+          "Graphics For SMM": "8 Graphic Post + 1 Reel",
+          Reports: "Weekly Reports",
+          Service:
+            "Hashtags Research + Content Marketing + Competitors Analysis + Optimizations",
+          Delivery: "List of Work will be shared etc. (Strategy decide)",
+          Freebies: "7 days - 1 graphic Posting",
+          "Budget extra": "NA",
+          Taxes: "NA",
+        },
       },
       {
-        name: "PROFESSIONAL", price: 2099, badge: "Market Leader",
-        features: ["200 Keywords", "200 Backlinks / mo", "Product Description Writing", "Email Automation", "200 Service Hours"],
+        name: "Corporate",
+        price: 299,
+        badge: "Advanced",
+        features: [
+          "16 Graphic Posts + 2 Reels",
+          "Weekly Reports",
+          "Advanced Optimization",
+          "Ad Specific Posts",
+        ],
         details: {
-          "Keywords": 200, "Monthly Hours": 200, "Backlinks": 200, "Website Analysis": true, "Competition Analysis": true, "Keyword Research": true,
-          "Product Markup (Schema)": true, "Rich Snippets Optimization": true, "Page Speed Analysis": true, "Heading Tags Optimization": true,
-          "Guest Blogging": 10, "Search Engine Submissions": 10, "Social Bookmarking Links": 100, "Facebook Profile Promotion": 25,
-        }
-      },
-      {
-        name: "ENTERPRISE", price: 3599, badge: "World Class",
-        features: ["500 Keywords", "400 Backlinks / mo", "Amazon/eBay Store Setup", "Google News Listing", "250 Service Hours"],
-        details: {
-          "Keywords": 500, "Monthly Hours": 250, "Backlinks": 400, "Website Analysis": true, "Competition Analysis": true, "Keyword Research": true,
-          "Product Markup (Schema)": true, "Rich Snippets Optimization": true, "Page Speed Analysis": true, "Heading Tags Optimization": true,
-          "Guest Blogging": 20, "Search Engine Submissions": 25, "Social Bookmarking Links": 210, "Facebook Profile Promotion": 60,
-        }
+          Price: "$299.00",
+          "Graphics For SMM": "16 Graphic Post + 2 Reels",
+          Reports: "Weekly Reports",
+          Service:
+            "Hashtags Research + Content Marketing + Competitors Analysis + Optimizations + Ad Specific Posts",
+          Delivery: "List of Work will be shared etc. (Strategy decide)",
+          Freebies: "7 days - 1 graphic Posting",
+          "Budget extra": "NA",
+          Taxes: "NA",
+        },
       },
     ],
   },
   {
-    key: "smm", label: "Social Media Marketing",
-    desc: "Build a community with creative content and strategic trust-building tactics.",
+    key: "web",
+    label: "Website Development",
+    desc: "Business websites, ecommerce stores, and modern frontend builds with fixed USD pricing.",
     tiers: [
       {
-        name: "Basic", price: 99,
-        features: ["5 Unique Designs", "5 Posts across platforms", "Profile Optimization", "15 Service Hours"],
+        name: "WordPress / Shopify",
+        price: 650,
+        badge: "Most Chosen",
+        features: [
+          "WordPress",
+          "15 Days Estimated Time",
+          "5 Pages + Basic SEO",
+          "Domain & Hosting Extra",
+        ],
         details: {
-          "No. of Hours": 15, "Monthly creative creation": 5, "Monthly postings": 5, "Strategy formation": true, "Hashtag creation": true, "Account Management": true,
-          "Paid Promotion Setup": false, "Remarketing / Funnel": false, "Monthly report with insights": true,
-        }
+          Price: "$650",
+          Platform: "Wordpress",
+          Timeline: "15 Days Estimated Time",
+          Scope: "Wordpress Website +5 Pages + Basic SEO On Page",
+          Requirement: "Domain + Hosting additional required",
+          Hosting: "Extra For Domain and Hosting",
+          Extra: "Extra Applicable",
+        },
       },
       {
-        name: "Standard", price: 199, badge: "Popular", highlight: true,
-        features: ["8 Unique Designs", "8 Posts across platforms", "Community Engagement", "40 Service Hours"],
+        name: "HTML / PHP / Magento",
+        price: 1000,
+        badge: "Business",
+        highlight: true,
+        features: [
+          "HTML / PHP",
+          "15 Days Estimated Time",
+          "5 Pages + Basic SEO",
+          "Hosting Worth $5K Included",
+        ],
         details: {
-          "No. of Hours": 40, "Monthly creative creation": 8, "Monthly postings": 8, "Strategy formation": true, "Hashtag creation": true, "Account Management": true,
-          "Paid Promotion Setup": true, "Remarketing / Funnel": false, "Monthly report with insights": true,
-        }
+          Price: "$1000",
+          Platform: "HTML/PHP",
+          Timeline: "15 Days Estimated Time",
+          Scope: "5 Pages + Basic SEO On Page",
+          Requirement: "Domain + Hosting additional required",
+          Hosting: "Domain and Hosting Included Worth 5 thousand",
+          Extra: "Extra Applicable",
+        },
       },
       {
-        name: "Professional", price: 299,
-        features: ["12 Unique Designs", "12 Posts across platforms", "Ad Management Setup", "60 Service Hours"],
+        name: "React.js",
+        price: 1750,
+        badge: "Premium",
+        features: [
+          "WordPress / Shopify / Wix",
+          "15 Days Estimated Time",
+          "10 Products + 5 Pages + Admin",
+          "Hosting Worth $5K Included",
+        ],
         details: {
-          "No. of Hours": 60, "Monthly creative creation": 12, "Monthly postings": 12, "Strategy formation": true, "Hashtag creation": true, "Account Management": true,
-          "Paid Promotion Setup": true, "Remarketing / Funnel": true, "Monthly report with insights": true,
-        }
+          Price: "$1750",
+          Platform: "Wordpress OR Shopify Or Wix",
+          Timeline: "15 Days Estimated Time",
+          Scope: "10 Product Included +5 Pages+ Admin Panel",
+          Requirement: "Domain + Hosting additional required",
+          Hosting: "Domain and Hosting Included Worth 5 thousand",
+          Extra: "Extra Applicable",
+        },
       },
     ],
   },
   {
-    key: "web", label: "Web Development",
-    desc: "Fast, modern, and mobile-friendly websites designed for maximum user experience.",
+    key: "addons",
+    label: "Add-ons",
+    desc: "One-time setup and research services priced in USD only.",
     tiers: [
       {
-        name: "BASIC", price: 850,
-        features: ["1-3 Page Responsive", "Standard UI", "5 Hours Maintenance", "Hosted Emails: 25"],
+        name: "Set Up SMM Fees",
+        price: 99,
+        badge: "One-Time",
+        highlight: true,
+        isOneTime: true,
+        features: [
+          "Initial SMM Setup",
+          "One-time Service",
+          "USD Fixed Price",
+          "No Auto Currency Change",
+        ],
         details: {
-          "Design Iterations": 1, "Layered Sliders": true, "Responsive Site": true, "Web Hosting": true, "Hosted Emails": 25, "Maintenance work": "5 hrs/mo",
-          "CMS (WordPress/Joomla)": true, "Search Engine Friendly": true, "Social Logins": false, "Added Site Security": false,
-        }
+          Price: "$99.00",
+          Type: "Set Up SMM Fees",
+          Billing: "One-time",
+        },
       },
       {
-        name: "STANDARD", price: 1650, badge: "Scale Up", highlight: true,
-        features: ["Up to 8 Page Responsive", "Custom Design", "Shopping Cart", "10 Hours Maintenance"],
+        name: "Keyword Research",
+        price: 99,
+        badge: "One-Time",
+        isOneTime: true,
+        features: [
+          "Keyword Research",
+          "Planning Support",
+          "Search Targeting",
+          "One-time Service",
+        ],
         details: {
-          "Design Iterations": 2, "Layered Sliders": true, "Responsive Site": true, "Web Hosting": true, "Hosted Emails": 50, "Maintenance work": "10 hrs/mo",
-          "CMS (Shopify/Magento)": true, "Search Engine Friendly": true, "Social Logins": true, "Added Site Security": true,
-        }
-      },
-      {
-        name: "Professional", price: 3499,
-        features: ["Up to 15 Page Site", "Full Multi-Iteration Design", "Custom Frameworks", "25 Hours Maintenance"],
-        details: {
-          "Design Iterations": 4, "Layered Sliders": true, "Responsive Site": true, "Web Hosting": true, "Hosted Emails": 100, "Maintenance work": "25 hrs/mo",
-          "CMS (Any Custom/Framework)": true, "Search Engine Friendly": true, "Social Logins": true, "Added Site Security": true,
-        }
+          Price: "$99.00",
+          Type: "Keyword Research",
+          Billing: "One-time",
+        },
       },
     ],
   },
 ];
 
-/* ─────────────────── Currency helpers ─────────────────── */
-function localeGuess() { return typeof navigator !== "undefined" ? navigator.language : "en-IN"; }
-function currencyFromLocale(loc: string) {
-  const map: Record<string, string> = { IN: "INR", US: "USD", GB: "GBP", DE: "EUR", FR: "EUR", AE: "AED", AU: "AUD", CA: "CAD", SG: "SGD" };
-  return map[loc.split("-")[1]?.toUpperCase() ?? ""] ?? "INR";
-}
-async function fetchRates(): Promise<Rates> {
-  try { const r = await fetch("/api/rates", { cache: "force-cache" }); return (await r.json())?.rates ?? { INR: 1 }; }
-  catch { return { INR: 1 }; }
-}
-function fmt(amtUSD: number, cur: string, loc: string, rates: Rates) {
-  const amount = amtUSD * (rates[cur] ?? 1);
-  try { return new Intl.NumberFormat(loc, { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(amount); }
-  catch { return `${cur} ${Math.round(amount).toLocaleString()}`; }
+/* ─────────────────── Helpers ─────────────────── */
+function formatUSD(amount: number) {
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(amount);
+  } catch {
+    return `$${amount}`;
+  }
 }
 
 /* ─────────────────── Animations ─────────────────── */
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 24 },
   whileInView: { opacity: 1, y: 0 },
@@ -206,15 +319,25 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.6, ease: EASE, delay },
 });
 
-/* ─────────────────── Scrolling Marquee ─────────────────── */
+/* ─────────────────── Marquee ─────────────────── */
 function Marquee() {
-  const chunk = "Transparent Pricing  ·  No Hidden Fees  ·  Real Results  ·  ";
+  const chunk = "USD Pricing  ·  Fixed Currency  ·  No Auto Conversion  ·  ";
   const row = chunk.repeat(8);
+
   return (
     <div className="overflow-hidden bg-[#0b0b0b] py-5 select-none">
-      <motion.div className="flex whitespace-nowrap" animate={{ x: ["0%", "-50%"] }} transition={{ duration: 32, ease: "linear", repeat: Infinity }}>
+      <motion.div
+        className="flex whitespace-nowrap"
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{ duration: 32, ease: "linear", repeat: Infinity }}
+      >
         {[row, row].map((r, i) => (
-          <span key={i} className="text-[clamp(16px,2.2vw,28px)] font-black uppercase tracking-tight pr-8 text-white/60">{r}</span>
+          <span
+            key={i}
+            className="text-[clamp(16px,2.2vw,28px)] font-black uppercase tracking-tight pr-8 text-white/60"
+          >
+            {r}
+          </span>
         ))}
       </motion.div>
     </div>
@@ -222,15 +345,18 @@ function Marquee() {
 }
 
 /* ─────────────────── Pricing Card ─────────────────── */
-function PriceCard({ tier, sectionKey, delay, loaded, locale, currency, rates, reduce }: {
-  tier: Tier; sectionKey: string; delay: number;
-  loaded: boolean; locale: string; currency: string; rates: Rates; reduce: boolean | null;
+function PriceCard({
+  tier,
+  sectionKey,
+  delay,
+  reduce,
+}: {
+  tier: Tier;
+  sectionKey: string;
+  delay: number;
+  reduce: boolean | null;
 }) {
-  const displayPrice = useMemo(() => fmt(tier.price, currency, locale, rates), [tier.price, currency, locale, rates]);
-  const fallback = useMemo(() => {
-    try { return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(tier.price); }
-    catch { return `$${tier.price.toLocaleString("en-US")}`; }
-  }, [tier.price]);
+  const displayPrice = formatUSD(tier.price);
 
   return (
     <motion.article
@@ -238,69 +364,91 @@ function PriceCard({ tier, sectionKey, delay, loaded, locale, currency, rates, r
       whileHover={{ y: -6 }}
       transition={{ type: "spring", stiffness: 200, damping: 22 }}
       className={`relative flex flex-col rounded-3xl border p-7 h-full transition-shadow ${tier.highlight
-        ? "bg-[#0b0b0b] border-transparent text-white shadow-2xl shadow-black/20"
-        : "bg-white border-black/8 text-[#0e0e0e] shadow-sm hover:shadow-md"
+          ? "bg-[#0b0b0b] border-transparent text-white shadow-2xl shadow-black/20"
+          : "bg-white border-black/8 text-[#0e0e0e] shadow-sm hover:shadow-md"
         }`}
     >
-      {/* Badge */}
       {tier.badge && (
-        <div className={`absolute -top-3.5 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] whitespace-nowrap shadow-sm ${tier.highlight ? "bg-white text-[#0b0b0b]" : "bg-[#0b0b0b] text-white"
-          }`}>
+        <div
+          className={`absolute -top-3.5 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] whitespace-nowrap shadow-sm ${tier.highlight ? "bg-white text-[#0b0b0b]" : "bg-[#0b0b0b] text-white"
+            }`}
+        >
           {tier.highlight && <Sparkles className="h-3 w-3" />}
           {tier.badge}
         </div>
       )}
 
-      {/* Plan name */}
-      <p className={`text-[10px] font-bold uppercase tracking-[0.18em] mb-3 ${tier.highlight ? "text-white/40" : "text-black/35"}`}>
+      <p
+        className={`text-[10px] font-bold uppercase tracking-[0.18em] mb-3 ${tier.highlight ? "text-white/40" : "text-black/35"
+          }`}
+      >
         {tier.name}
       </p>
 
-      {/* Price */}
       <div className="mb-6 pb-6 border-b border-current/[0.08]">
         <div className="flex items-end gap-1.5 leading-none">
           <span className="text-[clamp(28px,4vw,40px)] font-black tracking-tight">
-            {loaded ? displayPrice : fallback}
+            {displayPrice}
           </span>
-          <span className={`text-xs mb-1 ${tier.highlight ? "text-white/40" : "text-black/35"}`}>/month</span>
+          <span
+            className={`text-xs mb-1 ${tier.highlight ? "text-white/40" : "text-black/35"
+              }`}
+          >
+            {tier.isOneTime ? "/one-time" : "/month"}
+          </span>
         </div>
       </div>
 
-      {/* Features */}
       <ul className="flex flex-col gap-3 mb-8 flex-1">
         {tier.features.map((f) => (
           <li key={f} className="flex items-start gap-2.5 text-sm">
-            <div className={`mt-0.5 flex-shrink-0 h-4.5 w-4.5 rounded-full grid place-items-center ${tier.highlight ? "bg-white/15" : "bg-black/6"
-              }`}>
-              <Check className={`h-2.5 w-2.5 ${tier.highlight ? "text-white" : "text-black/60"}`} />
+            <div
+              className={`mt-0.5 flex-shrink-0 h-4.5 w-4.5 rounded-full grid place-items-center ${tier.highlight ? "bg-white/15" : "bg-black/6"
+                }`}
+            >
+              <Check
+                className={`h-2.5 w-2.5 ${tier.highlight ? "text-white" : "text-black/60"
+                  }`}
+              />
             </div>
-            <span className={tier.highlight ? "text-white/75" : "text-black/65"}>{f}</span>
+            <span className={tier.highlight ? "text-white/75" : "text-black/65"}>
+              {f}
+            </span>
           </li>
         ))}
       </ul>
 
-      {/* CTA */}
       <Link
-        href={`/contact?service=${sectionKey}&plan=${tier.name}`}
+        href={`/contact?service=${sectionKey}&plan=${encodeURIComponent(tier.name)}`}
         className={`group w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-bold px-5 py-3 transition-all ${tier.highlight
-          ? "bg-white text-[#0b0b0b] hover:bg-white/90 shadow-lg shadow-white/10"
-          : "bg-[#0b0b0b] text-white hover:bg-black/80"
+            ? "bg-white text-[#0b0b0b] hover:bg-white/90 shadow-lg shadow-white/10"
+            : "bg-[#0b0b0b] text-white hover:bg-black/80"
           }`}
       >
         Get started
         <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
       </Link>
-      <p className={`mt-3 text-center text-[11px] ${tier.highlight ? "text-white/30" : "text-black/30"}`}>
-        No hidden fees · Cancel anytime
+
+      <p
+        className={`mt-3 text-center text-[11px] ${tier.highlight ? "text-white/30" : "text-black/30"
+          }`}
+      >
+        USD pricing only · No hidden conversion
       </p>
     </motion.article>
   );
 }
 
-/* ─────────────────── Page ─────────────────── */
+/* ─────────────────── Main Page ─────────────────── */
 export default function PricingPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#F7F7F7] grid place-items-center"><div className="w-10 h-10 border-4 border-black/10 border-t-black rounded-full animate-spin" /></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#F7F7F7] grid place-items-center">
+          <div className="w-10 h-10 border-4 border-black/10 border-t-black rounded-full animate-spin" />
+        </div>
+      }
+    >
       <PricingContent />
     </Suspense>
   );
@@ -314,23 +462,9 @@ function PricingContent() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const reduce = useReducedMotion();
 
-  const [locale, setLocale] = useState("en-IN");
-  const [currency, setCurrency] = useState("INR");
-  const [rates, setRates] = useState<Rates>({ INR: 1 });
-  const [loaded, setLoaded] = useState(false);
-
   useEffect(() => {
-    const loc = localeGuess();
-    setLocale(loc);
-    setCurrency(currencyFromLocale(loc));
-    fetchRates().then((r) => { setRates(r); setLoaded(true); });
-  }, []);
-
-  // Update active tab from URL & Scroll to section
-  useEffect(() => {
-    if (typeParam && CATEGORIES.some(c => c.key === typeParam)) {
+    if (typeParam && CATEGORIES.some((c) => c.key === typeParam)) {
       setActive(typeParam);
-      // Optional: Smooth scroll to the table if from a direct link
       const table = document.getElementById("pricing-table");
       if (table) {
         window.scrollTo({ top: table.offsetTop - 120, behavior: "smooth" });
@@ -339,49 +473,60 @@ function PricingContent() {
   }, [typeParam]);
 
   const activeSection = SECTIONS.find((s) => s.key === active)!;
-  const activeCategory = CATEGORIES.find(c => c.key === active)!;
+  const activeCategory = CATEGORIES.find((c) => c.key === active)!;
 
   return (
     <div className="min-h-screen bg-[#F7F7F7] text-[#0e0e0e]">
-
-      {/* ── Dark Hero ── */}
       <section className="relative bg-[#0b0b0b] overflow-hidden">
-        {/* Gradient orbs */}
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute top-0 left-1/3 w-[500px] h-[350px] rounded-full bg-indigo-600/12 blur-[120px]" />
           <div className="absolute bottom-0 right-1/3 w-[400px] h-[280px] rounded-full bg-emerald-600/12 blur-[100px]" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 pt-28 pb-20 text-center">
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: EASE }}
-            className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/5 px-4 py-2 backdrop-blur mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: EASE }}
+            className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/5 px-4 py-2 backdrop-blur mb-8"
+          >
             <Zap className="h-3.5 w-3.5 text-amber-400" />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/55">Pricing Plans</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/55">
+              Pricing Plans
+            </span>
           </motion.div>
 
-          <motion.h1 initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE, delay: 0.08 }}
-            className="text-[clamp(40px,7vw,88px)] font-black leading-[0.95] tracking-tight text-white max-w-4xl mx-auto">
+          <motion.h1
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: EASE, delay: 0.08 }}
+            className="text-[clamp(40px,7vw,88px)] font-black leading-[0.95] tracking-tight text-white max-w-4xl mx-auto"
+          >
             Simple, transparent{" "}
             <span className="bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-emerald-400 bg-clip-text text-transparent italic">
-              pricing.
+              USD pricing.
             </span>
           </motion.h1>
 
-          <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: EASE, delay: 0.2 }}
-            className="mt-7 text-lg text-white/40 max-w-xl mx-auto leading-relaxed">
-            No hidden fees, no locked contracts. Pick a plan that fits your goals — upgrade or cancel anytime.
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: EASE, delay: 0.2 }}
+            className="mt-7 text-lg text-white/40 max-w-xl mx-auto leading-relaxed"
+          >
+            All pricing is fixed in US Dollars only. No automatic currency switching and no region-based price changes.
           </motion.p>
         </div>
 
-        {/* Marquee inside hero */}
         <Marquee />
       </section>
 
-      {/* ── Category Switcher ── */}
-      <div id="pricing-table" className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-black/8 shadow-sm">
+      <div
+        id="pricing-table"
+        className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-black/8 shadow-sm"
+      >
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex items-center justify-between h-[72px]">
-            {/* Desktop: Pills */}
             <div className="hidden md:flex items-center gap-1 overflow-x-auto scrollbar-none">
               {CATEGORIES.map((cat) => {
                 const isActive = active === cat.key;
@@ -390,13 +535,16 @@ function PricingContent() {
                     key={cat.key}
                     onClick={() => setActive(cat.key)}
                     className={`relative flex-shrink-0 rounded-full px-5 py-2 text-sm font-semibold transition-all ${isActive
-                      ? "text-white"
-                      : "text-black/50 hover:text-black/80 hover:bg-black/5"
+                        ? "text-white"
+                        : "text-black/50 hover:text-black/80 hover:bg-black/5"
                       }`}
                   >
                     {isActive && (
-                      <motion.span layoutId="pill" className="absolute inset-0 rounded-full bg-[#0b0b0b]"
-                        transition={{ type: "spring", stiffness: 350, damping: 28 }} />
+                      <motion.span
+                        layoutId="pill"
+                        className="absolute inset-0 rounded-full bg-[#0b0b0b]"
+                        transition={{ type: "spring", stiffness: 350, damping: 28 }}
+                      />
                     )}
                     <span className="relative z-10">{cat.label}</span>
                   </button>
@@ -404,14 +552,16 @@ function PricingContent() {
               })}
             </div>
 
-            {/* Mobile / Generic: Dropdown toggle */}
             <div className="relative md:hidden w-full">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="w-full flex items-center justify-between px-6 py-3 rounded-2xl bg-black/5 border border-black/5 text-sm font-extrabold text-[#0b0b0b]"
               >
                 <span>{activeCategory.label} Packages</span>
-                <ChevronDown className={`h-4 w-4 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${dropdownOpen ? "rotate-180" : ""
+                    }`}
+                />
               </button>
 
               <AnimatePresence>
@@ -425,8 +575,13 @@ function PricingContent() {
                     {CATEGORIES.map((cat) => (
                       <button
                         key={cat.key}
-                        onClick={() => { setActive(cat.key); setDropdownOpen(false); }}
-                        className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${active === cat.key ? "bg-[#0b0b0b] text-white" : "hover:bg-black/5 text-black/60"
+                        onClick={() => {
+                          setActive(cat.key);
+                          setDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${active === cat.key
+                            ? "bg-[#0b0b0b] text-white"
+                            : "hover:bg-black/5 text-black/60"
                           }`}
                       >
                         {cat.label} Packages
@@ -437,46 +592,50 @@ function PricingContent() {
               </AnimatePresence>
             </div>
 
-            {/* Currency badge (optional visual) */}
             <div className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-black/20">
-              Prices in <span className="text-black/40">{currency}</span>
+              Prices in <span className="text-black/50">USD ($)</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Section ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 py-20">
-        <AnimatedSection section={activeSection} loaded={loaded} locale={locale} currency={currency} rates={rates} reduce={reduce} />
+        <AnimatedSection section={activeSection} reduce={reduce} />
       </section>
 
-      {/* ── Comparison Table ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-24">
         <ComparisonTable section={activeSection} />
       </section>
 
-      {/* ── Custom plan CTA ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-24">
-        <motion.div {...fadeUp(0)}
-          className="relative overflow-hidden rounded-3xl bg-[#0b0b0b] text-white p-10 sm:p-14 text-center">
-          {/* orbs */}
+        <motion.div
+          {...fadeUp(0)}
+          className="relative overflow-hidden rounded-3xl bg-[#0b0b0b] text-white p-10 sm:p-14 text-center"
+        >
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute top-0 left-1/4 w-80 h-48 rounded-full bg-indigo-600/15 blur-[80px]" />
             <div className="absolute bottom-0 right-1/4 w-64 h-40 rounded-full bg-emerald-600/15 blur-[70px]" />
           </div>
+
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white/40 mb-6">
               <Sparkles className="h-3.5 w-3.5" /> Custom plans
             </div>
+
             <h2 className="text-[clamp(28px,5vw,52px)] font-black leading-tight tracking-tight mb-4">
-              Need something tailored<br />
-              <span className="italic text-white/40">just for you?</span>
+              Need something tailored
+              <br />
+              <span className="italic text-white/40">for your business?</span>
             </h2>
+
             <p className="text-white/45 text-base max-w-lg mx-auto leading-relaxed mb-10">
-              Tell us your goals and we&apos;ll build a custom package across SEO, content, ads, and web — so you only pay for exactly what you need.
+              Tell us your goals and we&apos;ll create a custom plan in USD with no auto currency conversion.
             </p>
-            <Link href="/contact"
-              className="group inline-flex items-center gap-2.5 rounded-full bg-white text-[#0b0b0b] text-sm font-bold px-8 py-4 hover:bg-white/90 transition-all shadow-lg shadow-white/10">
+
+            <Link
+              href="/contact"
+              className="group inline-flex items-center gap-2.5 rounded-full bg-white text-[#0b0b0b] text-sm font-bold px-8 py-4 hover:bg-white/90 transition-all shadow-lg shadow-white/10"
+            >
               Talk to an expert
               <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
@@ -487,30 +646,27 @@ function PricingContent() {
   );
 }
 
-/* ─── Comparison Table ─── */
-const GROUPS: Record<string, { label: string, features: string[] }[]> = {
+/* ─────────────────── Comparison Table ─────────────────── */
+const GROUPS: Record<string, { label: string; features: string[] }[]> = {
   seo: [
-    { label: "Search Power", features: ["Keywords", "Backlinks", "GBP (GMB)", "Geotagging"] },
-    { label: "Analysis", features: ["Pre-Optimization Analysis", "Competitor Analysis", "Keyword Research", "Google Penalty Check"] },
-    { label: "On-Page", features: ["Title Tag Optimization", "META Tags Optimization", "Content Optimization", "Robots.txt Creation", "Google XML Sitemap"] },
-    { label: "Off-Page", features: ["Search Engine Submission", "Article Writing", "Article Posting", "Social Bookmarking"] },
-    { label: "Reports", features: ["Monthly Analytics Report"] },
-  ],
-  ecommerce: [
-    { label: "Market Reach", features: ["Keywords", "Monthly Hours", "Backlinks"] },
-    { label: "Analysis & SEO", features: ["Website Analysis", "Competition Analysis", "Keyword Research", "Product Markup (Schema)", "Rich Snippets Optimization", "Page Speed Analysis", "Heading Tags Optimization"] },
-    { label: "Content & Links", features: ["Guest Blogging", "Search Engine Submissions", "Social Bookmarking Links", "Facebook Profile Promotion"] },
+    { label: "Pricing", features: ["Price"] },
+    { label: "Campaign", features: ["Keywords", "Platform", "Graphics", "Service"] },
+    {
+      label: "Execution",
+      features: ["Delivery", "Freebies Provided if asked", "Budget extra", "Taxes"],
+    },
   ],
   smm: [
-    { label: "Engagement", features: ["No. of Hours", "Monthly creative creation", "Monthly postings", "Strategy formation", "Hashtag creation", "Account Management"] },
-    { label: "Ads & Promotion", features: ["Paid Promotion Setup", "Remarketing / Funnel"] },
-    { label: "Insights", features: ["Monthly report with insights"] },
+    { label: "Pricing", features: ["Price"] },
+    { label: "Creative", features: ["Graphics For SMM", "Reports", "Service"] },
+    { label: "Execution", features: ["Delivery", "Freebies", "Budget extra", "Taxes"] },
   ],
   web: [
-    { label: "Design & UX", features: ["Design Iterations", "Layered Sliders", "Responsive Site"] },
-    { label: "Hosting & Maintenance", features: ["Web Hosting", "Hosted Emails", "Maintenance work"] },
-    { label: "Technology", features: ["CMS (WordPress/Joomla)", "CMS (Shopify/Magento)", "CMS (Any Custom/Framework)", "Search Engine Friendly", "Social Logins", "Added Site Security"] },
+    { label: "Pricing", features: ["Price"] },
+    { label: "Build", features: ["Platform", "Timeline", "Scope"] },
+    { label: "Hosting", features: ["Requirement", "Hosting", "Extra"] },
   ],
+  addons: [{ label: "Add-ons", features: ["Price", "Type", "Billing"] }],
 };
 
 function ComparisonTable({ section }: { section: Section }) {
@@ -543,28 +699,42 @@ function ComparisonTable({ section }: { section: Section }) {
               <table className="w-full text-left border-collapse min-w-[800px]">
                 <thead>
                   <tr className="border-b border-black/5 bg-[#fbfbfb]">
-                    <th className="p-8 text-[11px] font-black uppercase tracking-[0.25em] text-black/30 w-1/3">Full Feature Audit</th>
+                    <th className="p-8 text-[11px] font-black uppercase tracking-[0.25em] text-black/30 w-1/3">
+                      Full Feature Audit
+                    </th>
                     {section.tiers.map((t) => (
                       <th key={t.name} className="p-8 text-center min-w-[150px]">
-                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#0b0b0b]">{t.name}</span>
+                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#0b0b0b]">
+                          {t.name}
+                        </span>
                         <div className="mt-1 text-[10px] font-bold text-black/25">Plan</div>
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="">
+
+                <tbody>
                   {groups.map((group) => (
                     <React.Fragment key={group.label}>
                       <tr className="bg-black/[0.02]">
-                        <td colSpan={section.tiers.length + 1} className="px-8 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-black/40 border-y border-black/5">
+                        <td
+                          colSpan={section.tiers.length + 1}
+                          className="px-8 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-black/40 border-y border-black/5"
+                        >
                           {group.label}
                         </td>
                       </tr>
+
                       {group.features.map((f) => (
-                        <tr key={f} className="hover:bg-black/[0.01] transition-colors border-b border-black/[0.03] last:border-0 font-medium">
+                        <tr
+                          key={f}
+                          className="hover:bg-black/[0.01] transition-colors border-b border-black/[0.03] last:border-0 font-medium"
+                        >
                           <td className="px-8 py-5 text-sm text-black/60">{f}</td>
+
                           {section.tiers.map((t) => {
                             const val = t.details?.[f];
+
                             return (
                               <td key={t.name} className="px-8 py-5 text-center">
                                 {typeof val === "boolean" ? (
@@ -580,7 +750,9 @@ function ComparisonTable({ section }: { section: Section }) {
                                     )}
                                   </div>
                                 ) : (
-                                  <span className="text-sm font-black text-[#0b0b0b]">{val ?? "-"}</span>
+                                  <span className="text-sm font-black text-[#0b0b0b]">
+                                    {val ?? "-"}
+                                  </span>
                                 )}
                               </td>
                             );
@@ -593,16 +765,29 @@ function ComparisonTable({ section }: { section: Section }) {
               </table>
             </div>
 
-            <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="mt-10 p-10 rounded-3xl bg-[#0b0b0b] text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mt-10 p-10 rounded-3xl bg-[#0b0b0b] text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden"
+            >
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-0 right-0 w-64 h-32 bg-indigo-500/10 blur-[60px]" />
               </div>
+
               <div className="relative z-10 text-center md:text-left">
-                <h4 className="text-2xl font-black tracking-tight mb-2 italic">Not sure which plan is right for you?</h4>
-                <p className="text-white/40 text-sm max-w-md">Our experts will perform a FREE audit of your existing presence and recommend the most effective strategy for your budget.</p>
+                <h4 className="text-2xl font-black tracking-tight mb-2 italic">
+                  Not sure which plan is right for you?
+                </h4>
+                <p className="text-white/40 text-sm max-w-md">
+                  Our team can suggest the right package based on your business type, budget, and goals.
+                </p>
               </div>
-              <Link href="/contact" className="relative z-10 group inline-flex items-center gap-3 rounded-full bg-white text-[#0b0b0b] text-sm font-black px-8 py-4 hover:bg-white/90 transition-all hover:scale-[1.02]">
+
+              <Link
+                href="/contact"
+                className="relative z-10 group inline-flex items-center gap-3 rounded-full bg-white text-[#0b0b0b] text-sm font-black px-8 py-4 hover:bg-white/90 transition-all hover:scale-[1.02]"
+              >
                 Get a Free Audit
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Link>
@@ -614,10 +799,12 @@ function ComparisonTable({ section }: { section: Section }) {
   );
 }
 
-import React from "react";
-
-function AnimatedSection({ section, loaded, locale, currency, rates, reduce }: {
-  section: Section; loaded: boolean; locale: string; currency: string; rates: Rates; reduce: boolean | null;
+function AnimatedSection({
+  section,
+  reduce,
+}: {
+  section: Section;
+  reduce: boolean | null;
 }) {
   return (
     <motion.div
@@ -626,7 +813,6 @@ function AnimatedSection({ section, loaded, locale, currency, rates, reduce }: {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
     >
-      {/* Section header */}
       <div className="mb-12 text-center">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/35 mb-3">
           {section.label}
@@ -637,18 +823,22 @@ function AnimatedSection({ section, loaded, locale, currency, rates, reduce }: {
         <p className="text-base text-black/50 max-w-md mx-auto">{section.desc}</p>
       </div>
 
-      {/* Cards */}
-      <div className={`grid gap-6 ${section.tiers.length === 3 ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2 lg:grid-cols-4"}`}>
+      <div
+        className={`grid gap-6 ${section.tiers.length === 2
+            ? "sm:grid-cols-2 max-w-3xl mx-auto"
+            : "sm:grid-cols-2 lg:grid-cols-3"
+          }`}
+      >
         {section.tiers.map((tier, i) => (
           <PriceCard
-            key={tier.name} tier={tier} sectionKey={section.key}
-            delay={i * 0.07} loaded={loaded} locale={locale}
-            currency={currency} rates={rates} reduce={reduce}
+            key={tier.name}
+            tier={tier}
+            sectionKey={section.key}
+            delay={i * 0.07}
+            reduce={reduce}
           />
         ))}
       </div>
     </motion.div>
   );
 }
-
-import { AnimatePresence } from "framer-motion";

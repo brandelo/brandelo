@@ -32,7 +32,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         }
       >
         <Navbar />
-        <SplashCursor />
+        {/* <SplashCursor /> */}
         {children}
         <ContactFooterWDB />
       </div>

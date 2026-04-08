@@ -1,8 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Instagram, Facebook, Twitter, Linkedin } from "lucide-react";
-import { useState, useMemo } from "react";
+import {
+  ArrowRight,
+  Instagram,
+  Facebook,
+  Twitter,
+  Linkedin,
+} from "lucide-react";
+import React, { useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function Footer() {
@@ -18,22 +24,35 @@ export default function Footer() {
     e.preventDefault();
     setSuccessMsg(null);
     setErrorMsg(null);
+
     if (!name.trim() || !phone.trim()) {
       setErrorMsg("Please enter your name and number.");
       return;
     }
+
     try {
       setSubmitting(true);
+
       const { error } = await supabase.from("form_submissions").insert({
         form_key: "footer_lead",
         form_title: "Footer Lead",
         status: "new",
         full_name: name.trim(),
         phone: phone.trim(),
-        payload: { name: name.trim(), phone: phone.trim(), source: "footer" },
+        payload: {
+          name: name.trim(),
+          phone: phone.trim(),
+          source: "footer",
+        },
       });
-      if (error) { setErrorMsg("Something went wrong. Please try again."); return; }
-      setName(""); setPhone("");
+
+      if (error) {
+        setErrorMsg("Something went wrong. Please try again.");
+        return;
+      }
+
+      setName("");
+      setPhone("");
       setSuccessMsg("Thanks! We'll be in touch soon.");
     } catch {
       setErrorMsg("Unexpected error. Please try again.");
@@ -61,9 +80,9 @@ export default function Footer() {
 
   const packages = [
     { label: "SEO Packages", href: "/pricing?type=seo" },
-    { label: "Ecommerce Packages", href: "/pricing?type=ecommerce" },
-    { label: "SMO Packages", href: "/pricing?type=smm" },
+    { label: "SMM Packages", href: "/pricing?type=smm" },
     { label: "Web Packages", href: "/pricing?type=web" },
+    { label: "Add-ons", href: "/pricing?type=addons" },
   ];
 
   const socials = [
@@ -74,161 +93,185 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative bg-[#0a0a0a] text-white overflow-hidden">
-      {/* Subtle top gradient accent */}
+    <footer className="relative overflow-hidden bg-[#0a0a0a] text-white">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-      {/* ── Main Content ── */}
-      <div className="mx-auto max-w-7xl px-6 pt-20 pb-12 lg:px-10">
-        <div className="grid grid-cols-1 gap-14 sm:grid-cols-2 lg:grid-cols-5 lg:gap-10">
-
-          {/* ── Col 1: Headline + Form ── */}
-          <div className="lg:col-span-1">
-            {/* Big headline */}
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/40 mb-4">
+      <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10 lg:py-20">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-10">
+          {/* Left Block */}
+          <div className="lg:col-span-4">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
               Let&apos;s plan your growth
             </p>
-            <h2 className="text-[clamp(40px,5.5vw,72px)] font-black leading-[1.05] tracking-tight bg-gradient-to-br from-white via-white/90 to-white/50 bg-clip-text text-transparent mb-6">
-              Master<br />The Market.
+
+            <h2 className="mb-5 text-[clamp(34px,4.8vw,64px)] font-black leading-[1.02] tracking-tight bg-gradient-to-br from-white via-white/90 to-white/50 bg-clip-text text-transparent">
+              Master
+              <br />
+              The Market.
             </h2>
-            <p className="text-sm text-white/50 mb-8 max-w-xs leading-relaxed">
-              Leave your name &amp; number. Let&apos;s start something impactful.
+
+            <p className="mb-8 max-w-md text-sm leading-relaxed text-white/50">
+              Leave your name and number and our team will get in touch with you.
             </p>
 
-            {/* Lead form */}
-            <form onSubmit={handleSubmit} className="space-y-4 max-w-sm">
+            <form onSubmit={handleSubmit} className="max-w-md space-y-4">
               <input
                 type="text"
                 placeholder="Your Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-white/30 transition-colors"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-white/30"
               />
+
               <input
                 type="tel"
                 placeholder="Your Number"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-white/30 transition-colors"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-white/30"
               />
-              {errorMsg && <p className="text-red-400 text-xs">{errorMsg}</p>}
-              {successMsg && <p className="text-emerald-400 text-xs">{successMsg}</p>}
+
+              {errorMsg && <p className="text-xs text-red-400">{errorMsg}</p>}
+              {successMsg && (
+                <p className="text-xs text-emerald-400">{successMsg}</p>
+              )}
+
               <button
                 type="submit"
                 disabled={submitting}
-                className="group inline-flex items-center gap-2 rounded-full bg-white text-black text-sm font-semibold px-6 py-3 hover:bg-white/90 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-all duration-200 hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {submitting ? "Sending…" : "Let's build your brand"}
+                {submitting ? "Sending..." : "Let's build your brand"}
                 <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
               </button>
             </form>
           </div>
 
-          {/* ── Col 2: Quick Links ── */}
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40 mb-6">
-              Quick Links
-            </h3>
-            <ul className="space-y-3">
-              {quickLinks.map((l) => (
-                <li key={l.label}>
-                  <Link
-                    href={l.href}
-                    className="text-sm text-white/70 hover:text-white transition-colors duration-150"
-                  >
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* ── Col 3: Our Services ── */}
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40 mb-6">
-              Our Services
-            </h3>
-            <ul className="space-y-3">
-              {services.map((s) => (
-                <li key={s.label}>
-                  <Link
-                    href={s.href}
-                    className="text-sm text-white/70 hover:text-white transition-colors duration-150"
-                  >
-                    {s.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* ── Col 4: Packages ── */}
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40 mb-6">
-              Our Packages
-            </h3>
-            <ul className="space-y-3">
-              {packages.map((p) => (
-                <li key={p.label}>
-                  <Link
-                    href={p.href}
-                    className="text-sm text-white/70 hover:text-white transition-colors duration-150"
-                  >
-                    {p.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* ── Col 5: Address + Social ── */}
-          <div className="sm:col-span-2 lg:col-span-1 lg:text-right flex flex-col justify-between gap-10">
-            <div>
-              <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40 mb-4">
-                Find Us
-              </h3>
-              <address className="not-italic text-sm text-white/60 leading-relaxed">
-                UP, Noida<br />
-                Sector 63
-              </address>
-              <div className="mt-5 space-y-1">
-                <Link href="mailto:info@brandelo.com" className="block text-sm text-white/70 hover:text-white transition-colors">
-                  info@brandelo.com
-                </Link>
-                <Link href="tel:+919625229696" className="block text-sm text-white/70 hover:text-white transition-colors">
-                  +91 96252 29696
-                </Link>
+          {/* Right Links Area */}
+          <div className="lg:col-span-8">
+            <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+              <div>
+                <h3 className="mb-5 text-xs font-semibold uppercase tracking-[0.18em] text-white/40">
+                  Quick Links
+                </h3>
+                <ul className="space-y-3">
+                  {quickLinks.map((item) => (
+                    <li key={item.label}>
+                      <Link
+                        href={item.href}
+                        className="text-sm text-white/70 transition-colors duration-150 hover:text-white"
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
 
-            {/* Socials */}
-            <div className="flex gap-3 lg:justify-end">
-              {socials.map(({ Icon, href, label }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="h-9 w-9 rounded-full border border-white/15 bg-white/5 grid place-items-center text-white/60 hover:text-white hover:border-white/30 hover:-translate-y-0.5 transition-all duration-200"
-                >
-                  <Icon className="h-4 w-4" />
-                </Link>
-              ))}
+              <div>
+                <h3 className="mb-5 text-xs font-semibold uppercase tracking-[0.18em] text-white/40">
+                  Our Services
+                </h3>
+                <ul className="space-y-3">
+                  {services.map((item) => (
+                    <li key={item.label}>
+                      <Link
+                        href={item.href}
+                        className="text-sm text-white/70 transition-colors duration-150 hover:text-white"
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="mb-5 text-xs font-semibold uppercase tracking-[0.18em] text-white/40">
+                  Our Packages
+                </h3>
+                <ul className="space-y-3">
+                  {packages.map((item) => (
+                    <li key={item.label}>
+                      <Link
+                        href={item.href}
+                        className="text-sm text-white/70 transition-colors duration-150 hover:text-white"
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="mb-5 text-xs font-semibold uppercase tracking-[0.18em] text-white/40">
+                  Find Us
+                </h3>
+
+                <address className="not-italic text-sm leading-relaxed text-white/60">
+                  UP, Noida
+                  <br />
+                  Sector 63
+                </address>
+
+                <div className="mt-5 space-y-2">
+                  <Link
+                    href="mailto:info@brandelo.com"
+                    className="block text-sm text-white/70 transition-colors hover:text-white"
+                  >
+                    info@brandelo.com
+                  </Link>
+
+                  <Link
+                    href="tel:+919625229696"
+                    className="block text-sm text-white/70 transition-colors hover:text-white"
+                  >
+                    +91 96252 29696
+                  </Link>
+                </div>
+
+                <div className="mt-6 flex gap-3">
+                  {socials.map(({ Icon, href, label }) => (
+                    <Link
+                      key={label}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className="grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-white/5 text-white/60 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/30 hover:text-white"
+                    >
+                      <Icon className="h-4 w-4" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Bottom Bar ── */}
+      {/* Bottom Bar */}
       <div className="border-t border-white/8">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/35">
-          <span>Copyright © {new Date().getFullYear()} Brandelo. All rights reserved.</span>
-          <span className="hidden sm:block">GST: 09QZUPES6134H1ZL</span>
-          <div className="flex gap-4">
-            <Link href="/terms" className="hover:text-white/60 transition-colors">Terms</Link>
-            <Link href="/privacy" className="hover:text-white/60 transition-colors">Privacy</Link>
-            <Link href="/refund" className="hover:text-white/60 transition-colors">Refund</Link>
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-5 text-xs text-white/35 sm:flex-row sm:items-center sm:justify-between lg:px-10">
+          <div className="text-center sm:text-left">
+            Copyright © {new Date().getFullYear()} Brandelo. All rights reserved.
+          </div>
+
+          <div className="text-center sm:text-left">
+            GST: 09QZUPES6134H1ZL
+          </div>
+
+          <div className="flex justify-center gap-4 sm:justify-end">
+            <Link href="/terms" className="transition-colors hover:text-white/60">
+              Terms
+            </Link>
+            <Link href="/privacy" className="transition-colors hover:text-white/60">
+              Privacy
+            </Link>
+            <Link href="/refund" className="transition-colors hover:text-white/60">
+              Refund
+            </Link>
           </div>
         </div>
       </div>
