@@ -11,10 +11,10 @@ import { Suspense } from "react";
 type Rates = Record<string, number>;
 
 const CATEGORIES = [
-  { key: "seo",       label: "SEO" },
+  { key: "seo", label: "SEO" },
   { key: "ecommerce", label: "Ecommerce SEO" },
-  { key: "smm",       label: "Social Media" },
-  { key: "web",       label: "Web Dev" },
+  { key: "smm", label: "Social Media" },
+  { key: "web", label: "Web Dev" },
 ] as const;
 
 type CategoryKey = (typeof CATEGORIES)[number]["key"];
@@ -35,8 +35,8 @@ const SECTIONS: Section[] = [
     key: "seo", label: "Search Engine Optimisation",
     desc: "Rank higher and get found faster with data-driven organic growth strategies.",
     tiers: [
-      { 
-        name: "Basic", price: 600, badge: "Startup", 
+      {
+        name: "Basic", price: 600, badge: "Startup",
         features: ["30 Keywords", "120 Backlinks / mo", "Site Analysis", "Google Indexing", "1 Blog Content / mo"],
         details: {
           "Keywords": 30, "Backlinks": 120, "GBP (GMB)": false, "Geotagging": false,
@@ -45,8 +45,8 @@ const SECTIONS: Section[] = [
           "Search Engine Submission": 10, "Article Writing": 1, "Article Posting": 1, "Social Bookmarking": 30, "Monthly Analytics Report": true,
         }
       },
-      { 
-        name: "Standard", price: 900, badge: "Growing Business", highlight: true, 
+      {
+        name: "Standard", price: 900, badge: "Growing Business", highlight: true,
         features: ["40 Keywords", "210 Backlinks / mo", "GBP Optimization", "4 Facebook Posts / mo", "2 Blog Contents / mo"],
         details: {
           "Keywords": 40, "Backlinks": 210, "GBP (GMB)": true, "Geotagging": false,
@@ -55,8 +55,8 @@ const SECTIONS: Section[] = [
           "Search Engine Submission": 20, "Article Writing": 2, "Article Posting": 2, "Social Bookmarking": 40, "Monthly Analytics Report": true,
         }
       },
-      { 
-        name: "Professional", price: 1250, badge: "Enterprise", 
+      {
+        name: "Professional", price: 1250, badge: "Enterprise",
         features: ["50 Keywords", "300 Backlinks / mo", "Geotagging & Schema", "8 Instagram Posts / mo", "3 Blog Contents / mo"],
         details: {
           "Keywords": 50, "Backlinks": 300, "GBP (GMB)": true, "Geotagging": true,
@@ -65,8 +65,8 @@ const SECTIONS: Section[] = [
           "Search Engine Submission": 30, "Article Writing": 3, "Article Posting": 3, "Social Bookmarking": 50, "Monthly Analytics Report": true,
         }
       },
-      { 
-        name: "Enterprise", price: 2000, badge: "Aggressive", 
+      {
+        name: "Enterprise", price: 2000, badge: "Aggressive",
         features: ["100 Keywords", "600 Backlinks / mo", "Full Site Architecture", "16 App Posts / mo", "6 Blog Contents / mo"],
         details: {
           "Keywords": 100, "Backlinks": 600, "GBP (GMB)": true, "Geotagging": true,
@@ -81,8 +81,8 @@ const SECTIONS: Section[] = [
     key: "ecommerce", label: "Ecommerce SEO",
     desc: "Drive massive sales through targeted online research and product optimization.",
     tiers: [
-      { 
-        name: "BASIC", price: 499, badge: "Start Selling", 
+      {
+        name: "BASIC", price: 499, badge: "Start Selling",
         features: ["50 Keywords", "70 Backlinks / mo", "Shopping Cart Analysis", "Product Image SEO", "150 Service Hours"],
         details: {
           "Keywords": 50, "Monthly Hours": 150, "Backlinks": 70, "Website Analysis": true, "Competition Analysis": true, "Keyword Research": true,
@@ -90,8 +90,8 @@ const SECTIONS: Section[] = [
           "Guest Blogging": 2, "Search Engine Submissions": 3, "Social Bookmarking Links": 20, "Facebook Profile Promotion": 10,
         }
       },
-      { 
-        name: "STANDARD", price: 1099, badge: "Scale Up", highlight: true, 
+      {
+        name: "STANDARD", price: 1099, badge: "Scale Up", highlight: true,
         features: ["100 Keywords", "120 Backlinks / mo", "Funnel Recommendations", "Remarketing Setup", "170 Service Hours"],
         details: {
           "Keywords": 100, "Monthly Hours": 170, "Backlinks": 120, "Website Analysis": true, "Competition Analysis": true, "Keyword Research": true,
@@ -99,8 +99,8 @@ const SECTIONS: Section[] = [
           "Guest Blogging": 5, "Search Engine Submissions": 5, "Social Bookmarking Links": 40, "Facebook Profile Promotion": 15,
         }
       },
-      { 
-        name: "PROFESSIONAL", price: 2099, badge: "Market Leader", 
+      {
+        name: "PROFESSIONAL", price: 2099, badge: "Market Leader",
         features: ["200 Keywords", "200 Backlinks / mo", "Product Description Writing", "Email Automation", "200 Service Hours"],
         details: {
           "Keywords": 200, "Monthly Hours": 200, "Backlinks": 200, "Website Analysis": true, "Competition Analysis": true, "Keyword Research": true,
@@ -108,8 +108,8 @@ const SECTIONS: Section[] = [
           "Guest Blogging": 10, "Search Engine Submissions": 10, "Social Bookmarking Links": 100, "Facebook Profile Promotion": 25,
         }
       },
-      { 
-        name: "ENTERPRISE", price: 3599, badge: "World Class", 
+      {
+        name: "ENTERPRISE", price: 3599, badge: "World Class",
         features: ["500 Keywords", "400 Backlinks / mo", "Amazon/eBay Store Setup", "Google News Listing", "250 Service Hours"],
         details: {
           "Keywords": 500, "Monthly Hours": 250, "Backlinks": 400, "Website Analysis": true, "Competition Analysis": true, "Keyword Research": true,
@@ -123,24 +123,24 @@ const SECTIONS: Section[] = [
     key: "smm", label: "Social Media Marketing",
     desc: "Build a community with creative content and strategic trust-building tactics.",
     tiers: [
-      { 
-        name: "Basic", price: 99, 
+      {
+        name: "Basic", price: 99,
         features: ["5 Unique Designs", "5 Posts across platforms", "Profile Optimization", "15 Service Hours"],
         details: {
           "No. of Hours": 15, "Monthly creative creation": 5, "Monthly postings": 5, "Strategy formation": true, "Hashtag creation": true, "Account Management": true,
           "Paid Promotion Setup": false, "Remarketing / Funnel": false, "Monthly report with insights": true,
         }
       },
-      { 
-        name: "Standard", price: 199, badge: "Popular", highlight: true, 
+      {
+        name: "Standard", price: 199, badge: "Popular", highlight: true,
         features: ["8 Unique Designs", "8 Posts across platforms", "Community Engagement", "40 Service Hours"],
         details: {
           "No. of Hours": 40, "Monthly creative creation": 8, "Monthly postings": 8, "Strategy formation": true, "Hashtag creation": true, "Account Management": true,
           "Paid Promotion Setup": true, "Remarketing / Funnel": false, "Monthly report with insights": true,
         }
       },
-      { 
-        name: "Professional", price: 299, 
+      {
+        name: "Professional", price: 299,
         features: ["12 Unique Designs", "12 Posts across platforms", "Ad Management Setup", "60 Service Hours"],
         details: {
           "No. of Hours": 60, "Monthly creative creation": 12, "Monthly postings": 12, "Strategy formation": true, "Hashtag creation": true, "Account Management": true,
@@ -153,24 +153,24 @@ const SECTIONS: Section[] = [
     key: "web", label: "Web Development",
     desc: "Fast, modern, and mobile-friendly websites designed for maximum user experience.",
     tiers: [
-      { 
-        name: "BASIC", price: 850, 
+      {
+        name: "BASIC", price: 850,
         features: ["1-3 Page Responsive", "Standard UI", "5 Hours Maintenance", "Hosted Emails: 25"],
         details: {
           "Design Iterations": 1, "Layered Sliders": true, "Responsive Site": true, "Web Hosting": true, "Hosted Emails": 25, "Maintenance work": "5 hrs/mo",
           "CMS (WordPress/Joomla)": true, "Search Engine Friendly": true, "Social Logins": false, "Added Site Security": false,
         }
       },
-      { 
-        name: "STANDARD", price: 1650, badge: "Scale Up", highlight: true, 
+      {
+        name: "STANDARD", price: 1650, badge: "Scale Up", highlight: true,
         features: ["Up to 8 Page Responsive", "Custom Design", "Shopping Cart", "10 Hours Maintenance"],
         details: {
           "Design Iterations": 2, "Layered Sliders": true, "Responsive Site": true, "Web Hosting": true, "Hosted Emails": 50, "Maintenance work": "10 hrs/mo",
           "CMS (Shopify/Magento)": true, "Search Engine Friendly": true, "Social Logins": true, "Added Site Security": true,
         }
       },
-      { 
-        name: "Professional", price: 3499, 
+      {
+        name: "Professional", price: 3499,
         features: ["Up to 15 Page Site", "Full Multi-Iteration Design", "Custom Frameworks", "25 Hours Maintenance"],
         details: {
           "Design Iterations": 4, "Layered Sliders": true, "Responsive Site": true, "Web Hosting": true, "Hosted Emails": 100, "Maintenance work": "25 hrs/mo",
@@ -237,17 +237,15 @@ function PriceCard({ tier, sectionKey, delay, loaded, locale, currency, rates, r
       {...fadeUp(reduce ? 0 : delay)}
       whileHover={{ y: -6 }}
       transition={{ type: "spring", stiffness: 200, damping: 22 }}
-      className={`relative flex flex-col rounded-3xl border p-7 h-full transition-shadow ${
-        tier.highlight
-          ? "bg-[#0b0b0b] border-transparent text-white shadow-2xl shadow-black/20"
-          : "bg-white border-black/8 text-[#0e0e0e] shadow-sm hover:shadow-md"
-      }`}
+      className={`relative flex flex-col rounded-3xl border p-7 h-full transition-shadow ${tier.highlight
+        ? "bg-[#0b0b0b] border-transparent text-white shadow-2xl shadow-black/20"
+        : "bg-white border-black/8 text-[#0e0e0e] shadow-sm hover:shadow-md"
+        }`}
     >
       {/* Badge */}
       {tier.badge && (
-        <div className={`absolute -top-3.5 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] whitespace-nowrap shadow-sm ${
-          tier.highlight ? "bg-white text-[#0b0b0b]" : "bg-[#0b0b0b] text-white"
-        }`}>
+        <div className={`absolute -top-3.5 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] whitespace-nowrap shadow-sm ${tier.highlight ? "bg-white text-[#0b0b0b]" : "bg-[#0b0b0b] text-white"
+          }`}>
           {tier.highlight && <Sparkles className="h-3 w-3" />}
           {tier.badge}
         </div>
@@ -272,9 +270,8 @@ function PriceCard({ tier, sectionKey, delay, loaded, locale, currency, rates, r
       <ul className="flex flex-col gap-3 mb-8 flex-1">
         {tier.features.map((f) => (
           <li key={f} className="flex items-start gap-2.5 text-sm">
-            <div className={`mt-0.5 flex-shrink-0 h-4.5 w-4.5 rounded-full grid place-items-center ${
-              tier.highlight ? "bg-white/15" : "bg-black/6"
-            }`}>
+            <div className={`mt-0.5 flex-shrink-0 h-4.5 w-4.5 rounded-full grid place-items-center ${tier.highlight ? "bg-white/15" : "bg-black/6"
+              }`}>
               <Check className={`h-2.5 w-2.5 ${tier.highlight ? "text-white" : "text-black/60"}`} />
             </div>
             <span className={tier.highlight ? "text-white/75" : "text-black/65"}>{f}</span>
@@ -285,11 +282,10 @@ function PriceCard({ tier, sectionKey, delay, loaded, locale, currency, rates, r
       {/* CTA */}
       <Link
         href={`/contact?service=${sectionKey}&plan=${tier.name}`}
-        className={`group w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-bold px-5 py-3 transition-all ${
-          tier.highlight
-            ? "bg-white text-[#0b0b0b] hover:bg-white/90 shadow-lg shadow-white/10"
-            : "bg-[#0b0b0b] text-white hover:bg-black/80"
-        }`}
+        className={`group w-full inline-flex items-center justify-center gap-2 rounded-full text-sm font-bold px-5 py-3 transition-all ${tier.highlight
+          ? "bg-white text-[#0b0b0b] hover:bg-white/90 shadow-lg shadow-white/10"
+          : "bg-[#0b0b0b] text-white hover:bg-black/80"
+          }`}
       >
         Get started
         <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
@@ -393,11 +389,10 @@ function PricingContent() {
                   <button
                     key={cat.key}
                     onClick={() => setActive(cat.key)}
-                    className={`relative flex-shrink-0 rounded-full px-5 py-2 text-sm font-semibold transition-all ${
-                      isActive
-                        ? "text-white"
-                        : "text-black/50 hover:text-black/80 hover:bg-black/5"
-                    }`}
+                    className={`relative flex-shrink-0 rounded-full px-5 py-2 text-sm font-semibold transition-all ${isActive
+                      ? "text-white"
+                      : "text-black/50 hover:text-black/80 hover:bg-black/5"
+                      }`}
                   >
                     {isActive && (
                       <motion.span layoutId="pill" className="absolute inset-0 rounded-full bg-[#0b0b0b]"
@@ -418,7 +413,7 @@ function PricingContent() {
                 <span>{activeCategory.label} Packages</span>
                 <ChevronDown className={`h-4 w-4 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
               </button>
-              
+
               <AnimatePresence>
                 {dropdownOpen && (
                   <motion.div
@@ -431,9 +426,8 @@ function PricingContent() {
                       <button
                         key={cat.key}
                         onClick={() => { setActive(cat.key); setDropdownOpen(false); }}
-                        className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                          active === cat.key ? "bg-[#0b0b0b] text-white" : "hover:bg-black/5 text-black/60"
-                        }`}
+                        className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${active === cat.key ? "bg-[#0b0b0b] text-white" : "hover:bg-black/5 text-black/60"
+                          }`}
                       >
                         {cat.label} Packages
                       </button>
@@ -445,7 +439,7 @@ function PricingContent() {
 
             {/* Currency badge (optional visual) */}
             <div className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-black/20">
-               Prices in <span className="text-black/40">{currency}</span>
+              Prices in <span className="text-black/40">{currency}</span>
             </div>
           </div>
         </div>
@@ -598,11 +592,11 @@ function ComparisonTable({ section }: { section: Section }) {
                 </tbody>
               </table>
             </div>
-            
+
             <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               className="mt-10 p-10 rounded-3xl bg-[#0b0b0b] text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
               <div className="absolute inset-0 pointer-events-none">
-                 <div className="absolute top-0 right-0 w-64 h-32 bg-indigo-500/10 blur-[60px]" />
+                <div className="absolute top-0 right-0 w-64 h-32 bg-indigo-500/10 blur-[60px]" />
               </div>
               <div className="relative z-10 text-center md:text-left">
                 <h4 className="text-2xl font-black tracking-tight mb-2 italic">Not sure which plan is right for you?</h4>
