@@ -62,11 +62,13 @@ export default function AboutPage() {
     { num: "06", title: "App Development", desc: "Intuitive mobile & web apps that bring your product vision to life with clean code and modern UX.", icon: Sparkles },
   ];
 
+  /*
   const TEAM = [
     { name: "Nikhil Sharma", role: "Founder & CEO", img: "https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=800&auto=format&fit=crop" },
     { name: "Priya Gupta", role: "Head of Marketing", img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=800&auto=format&fit=crop" },
     { name: "Rahul Verma", role: "Creative Director", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800&auto=format&fit=crop" },
   ];
+  */
 
   const STATS = [
     { value: "300+", label: "Success Stories" },
@@ -196,15 +198,15 @@ export default function AboutPage() {
           {/* Right — copy */}
           <div className="flex flex-col gap-10 pt-2 lg:pt-16">
             <div>
-               <h3 className="text-sm font-bold uppercase tracking-widest text-[#0e0e0e] mb-4">Our Vision</h3>
-               <motion.p {...fx(0.1)} className="text-xl text-black/70 leading-[1.75]">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-[#0e0e0e] mb-4">Our Vision</h3>
+              <motion.p {...fx(0.1)} className="text-xl text-black/70 leading-[1.75]">
                 By revolutionizing the sector and establishing new benchmarks for professionalism, we aim to be global leaders in digital marketing. Our goal is to be the premier firm for online brand management, digital sales solutions, and strategic marketing.
               </motion.p>
             </div>
-            
+
             <div>
-               <h3 className="text-sm font-bold uppercase tracking-widest text-[#0e0e0e] mb-4">Our Mission</h3>
-               <motion.p {...fx(0.15)} className="text-lg text-black/55 leading-relaxed">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-[#0e0e0e] mb-4">Our Mission</h3>
+              <motion.p {...fx(0.15)} className="text-lg text-black/55 leading-relaxed">
                 We work alongside our clients to ensure their success, building a diversified portfolio across industries. We deliver consistently effective, distinctive, and innovative digital marketing solutions that consider the unique needs of every partner.
               </motion.p>
             </div>
@@ -219,6 +221,7 @@ export default function AboutPage() {
       </section>
 
       {/* ═══════════════ LEADERSHIP ═══════════════ */}
+      {/* 
       <section className="bg-[#F7F7F7] py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="mb-16 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
@@ -244,7 +247,6 @@ export default function AboutPage() {
               >
                 <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl bg-[#e8e8e8] mb-5 shadow-sm">
                   <Image src={m.img} alt={m.name} fill className="object-cover object-top transition-transform duration-700 group-hover:scale-105" unoptimized />
-                  {/* gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                   <div className="absolute bottom-5 left-5 right-5">
                     <p className="font-bold text-white text-lg leading-tight">{m.name}</p>
@@ -256,6 +258,7 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+      */}
 
       {/* ═══════════════ MARQUEE 2 ═══════════════ */}
       <Marquee text="The Overachievers" speed={18} dark />
@@ -341,17 +344,17 @@ export default function AboutPage() {
         {/* Success Story / Testimonial */}
         <motion.div {...fx(0.15)} className="mt-24 border-t border-black/10 pt-20">
           <div className="max-w-3xl">
-             <SectionLabel>Client Success</SectionLabel>
-             <h3 className="text-[clamp(28px,4vw,42px)] font-black leading-tight tracking-tight mb-8">
+            <SectionLabel>Client Success</SectionLabel>
+            <h3 className="text-[clamp(28px,4vw,42px)] font-black leading-tight tracking-tight mb-8">
               &ldquo;Since partnering with Brandelo, we have seen a 300% increase in lead generation. Their expertise is undoubtedly top-tier.&rdquo;
-             </h3>
-             <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-full bg-black/5 flex items-center justify-center font-bold text-black/30 italic">RD</div>
-                <div>
-                   <p className="font-bold text-[#0e0e0e]">Strategic Partner</p>
-                   <p className="text-sm text-black/45 italic">E-commerce Enterprise</p>
-                </div>
-             </div>
+            </h3>
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-black/5 flex items-center justify-center font-bold text-black/30 italic">RD</div>
+              <div>
+                <p className="font-bold text-[#0e0e0e]">Strategic Partner</p>
+                <p className="text-sm text-black/45 italic">E-commerce Enterprise</p>
+              </div>
+            </div>
           </div>
         </motion.div>
       </section>

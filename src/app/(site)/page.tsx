@@ -12,7 +12,7 @@ export default function HomePage() {
       <ServicesModern />
       <WorkSection />
       {/* <TestimonialSection /> */}
-      <FounderSection />
+      {/* <FounderSection /> */}
       <Faq />
     </main>
   );
