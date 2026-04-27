@@ -53,7 +53,7 @@ export default function FounderSection() {
             <div className="flex items-center gap-3 mt-6">
               {[
                 { href: "https://linkedin.com", Icon: Linkedin, label: "LinkedIn" },
-                { href: "https://instagram.com", Icon: Instagram, label: "Instagram" },
+                { href: "https://www.instagram.com/brandelo_digital/", Icon: Instagram, label: "Instagram" },
                 { href: "https://twitter.com", Icon: Twitter, label: "Twitter" },
               ].map(({ href, Icon, label }) => (
                 <a

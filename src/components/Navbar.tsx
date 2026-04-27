@@ -93,12 +93,12 @@ export default function Navbar() {
               <div className="w-px h-4 bg-white/10" />
               <TopInfo icon={<Mail  className="h-3 w-3 text-cyan-400" />} text="info@brandelo.com" href="mailto:info@brandelo.com" />
               <div className="w-px h-4 bg-white/10" />
-              <TopInfo icon={<Phone className="h-3 w-3 text-cyan-400" />} text="+91 98997 83757" href="tel:+919899783757" />
+              <TopInfo icon={<Phone className="h-3 w-3 text-cyan-400" />} text="+91 98714 92013" href="tel:+919871492013" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] text-white/40 font-medium tracking-widest uppercase mr-1">Follow</span>
-              <SocialIcon type="instagram" href="https://instagram.com/" />
-              <SocialIcon type="facebook"  href="https://facebook.com/"  />
+              <SocialIcon type="instagram" href="https://www.instagram.com/brandelo_digital/" />
+              <SocialIcon type="facebook"  href="https://www.facebook.com/profile.php?id=61574286205890"  />
               <SocialIcon type="twitter"   href="https://twitter.com/"   />
             </div>
           </div>

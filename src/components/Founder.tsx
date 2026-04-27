@@ -41,8 +41,8 @@ export default function FounderShowcaseNeo({
   company = "Brandelo",
   imageSrc = "/images/founder/founder.png",
   socials = [
-    { type: "instagram", href: "https://instagram.com/" },
-    { type: "facebook", href: "https://facebook.com/" },
+    { type: "instagram", href: "https://www.instagram.com/brandelo_digital/" },
+    { type: "facebook", href: "https://www.facebook.com/profile.php?id=61574286205890" },
     { type: "linkedin", href: "https://linkedin.com/" },
   ],
   quote = "We build compounding growth systems—creative, performance, and engineering in one loop.",

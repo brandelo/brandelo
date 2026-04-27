@@ -331,7 +331,7 @@ export default function ContactPage() {
 
               <div className="flex flex-col gap-5">
                 <InfoRow icon={<Mail className="h-4 w-4" />} label="Email" value="info@brandelo.com" href="mailto:info@brandelo.com" />
-                <InfoRow icon={<Phone className="h-4 w-4" />} label="Phone" value="+91 96252 29696" href="tel:+919625229696" />
+                <InfoRow icon={<Phone className="h-4 w-4" />} label="Phone" value="+91 98714 92013" href="tel:+919871492013" />
                 <InfoRow icon={<MapPin className="h-4 w-4" />} label="Office" value="Sector 63, Noida, UP — India" />
                 <InfoRow icon={<Clock className="h-4 w-4" />} label="Hours" value="Mon – Fri · 10 AM – 7 PM IST" />
               </div>
@@ -346,7 +346,7 @@ export default function ContactPage() {
 
             {/* WhatsApp card */}
             <a
-              href="https://wa.me/919625229696"
+              href="https://wa.me/919871492013"
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center gap-4 bg-[#22C55E]/8 border border-[#22C55E]/20 rounded-2xl px-6 py-5 hover:bg-[#22C55E]/12 transition-all"

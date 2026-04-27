@@ -86,8 +86,8 @@ export default function Footer() {
   ];
 
   const socials = [
-    { Icon: Instagram, href: "https://instagram.com/", label: "Instagram" },
-    { Icon: Facebook, href: "https://facebook.com/", label: "Facebook" },
+    { Icon: Instagram, href: "https://www.instagram.com/brandelo_digital/", label: "Instagram" },
+    { Icon: Facebook, href: "https://www.facebook.com/profile.php?id=61574286205890", label: "Facebook" },
     { Icon: Twitter, href: "https://x.com/", label: "Twitter" },
     { Icon: Linkedin, href: "https://linkedin.com/", label: "LinkedIn" },
   ];
@@ -224,10 +224,10 @@ export default function Footer() {
                   </Link>
 
                   <Link
-                    href="tel:+919625229696"
+                    href="tel:+919871492013"
                     className="block text-sm text-white/70 transition-colors hover:text-white"
                   >
-                    +91 96252 29696
+                    +91 98714 92013
                   </Link>
                 </div>
 
